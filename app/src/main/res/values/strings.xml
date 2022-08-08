@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">MyCycle</string>
+    <string name="back"><![CDATA[<]]></string>
+    <string name="forward"><![CDATA[>]]></string>
+    <string name="add_new_event">Add new event</string>
+    <string name="button">Logout</string>
+    <string name="today">Oggi</string>
+</resources>
