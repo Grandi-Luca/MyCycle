@@ -1,119 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="20dp"
     android:background="@drawable/background_img"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:orientation="vertical">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigationView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        app:labelVisibilityMode="unlabeled"
+        android:background="?android:selectableItemBackground"
+        app:itemIconTint="@color/bottom_nav_item_color"
+        app:itemRippleColor="@color/primary_light"
+        app:itemIconSize="30dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/frameLayout"
+        app:menu="@menu/navbar" />
 
-        <include
-            layout="@layout/navbar"
-            android:id="@+id/navbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="13dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <FrameLayout
+        android:id="@+id/frameLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.017">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/firstCard"
-            android:layout_width="match_parent"
-            android:layout_height="168dp"
-            app:cardBackgroundColor="@color/primary"
-            app:cardCornerRadius="10dp"
-            android:layout_marginTop="103dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/navbar">
-
-            <com.google.android.flexbox.FlexboxLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingHorizontal="27dp"
-                app:dividerDrawable="@drawable/divider"
-                app:flexDirection="column"
-                app:justifyContent="center"
-                app:showDivider="middle">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Mestruazioni"
-                    android:textColor="@color/white"
-                    android:textFontWeight="600"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="X° giorno"
-                    android:textColor="@color/white"
-                    android:textFontWeight="700"
-                    android:textSize="34sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="12 giu - Pross mestruazioni"
-                    android:textColor="@color/white"
-                    android:textSize="16sp" />
-
-            </com.google.android.flexbox.FlexboxLayout>
+    </FrameLayout>
 
 
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/secondCard"
-            android:layout_width="match_parent"
-            android:layout_height="168dp"
-            app:cardBackgroundColor="@color/primary_light"
-            app:cardCornerRadius="10dp"
-            android:layout_marginTop="37dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/firstCard">
-
-            <com.google.android.flexbox.FlexboxLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:paddingHorizontal="27dp"
-                app:justifyContent="center"
-                app:dividerDrawable="@drawable/divider"
-                app:flexDirection="column"
-                app:showDivider="middle">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/today"
-                    android:textColor="@color/white"
-                    android:textFontWeight="600"
-                    android:textSize="18sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Nessun evento"
-                    android:textColor="@color/white"
-                    android:textFontWeight="700"
-                    android:textSize="30sp" />
-
-
-            </com.google.android.flexbox.FlexboxLayout>
-
-
-        </androidx.cardview.widget.CardView>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

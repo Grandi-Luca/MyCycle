@@ -19,17 +19,23 @@
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.161" />
         <entry key="app/src/main/res/drawable/ic_profile_image_background.xml" value="0.234" />
         <entry key="app/src/main/res/layout-v28/activity_main.xml" value="0.3640625" />
-        <entry key="app/src/main/res/layout/activity_calendar.xml" value="0.31502838134765626" />
+        <entry key="app/src/main/res/layout/activity_calendar.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_login_user.xml" value="0.3453079223632813" />
-        <entry key="app/src/main/res/layout/activity_main.xml" value="0.29884566053869177" />
+        <entry key="app/src/main/res/layout/activity_main.xml" value="0.29506120726044743" />
         <entry key="app/src/main/res/layout/activity_register_user.xml" value="0.17371826171875002" />
         <entry key="app/src/main/res/layout/activity_user_section.xml" value="0.2563405797101449" />
         <entry key="app/src/main/res/layout/calendar.xml" value="0.36302083333333335" />
         <entry key="app/src/main/res/layout/calendar_cell.xml" value="0.36302083333333335" />
         <entry key="app/src/main/res/layout/fab_add.xml" value="0.3640625" />
+        <entry key="app/src/main/res/layout/fragment_calendar.xml" value="0.29506120726044743" />
+        <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.29506120726044743" />
+        <entry key="app/src/main/res/layout/fragment_forum.xml" value="0.15049166310389056" />
+        <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.15049166310389056" />
         <entry key="app/src/main/res/layout/menses_cell.xml" value="0.36302083333333335" />
         <entry key="app/src/main/res/layout/navbar.xml" value="0.27220934427105614" />
         <entry key="app/src/main/res/layout/select_time.xml" value="0.36302083333333335" />
+        <entry key="app/src/main/res/menu/my_nav.xml" value="0.29421696918531026" />
+        <entry key="app/src/main/res/menu/navbar.xml" value="0.29884566053869177" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.161" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_profile_image.xml" value="0.234" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_profile_image_round.xml" value="0.234" />
@@ -41,5 +47,12 @@
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.29506120726044743" />
+      </ProjectState>
+    </option>
   </component>
 </project>

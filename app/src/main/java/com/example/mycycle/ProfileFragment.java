@@ -2,58 +2,63 @@ package com.example.mycycle;
 
 import static com.example.mycycle.Utils.isUserLogin;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.EditText;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextClock;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Objects;
 
-public class UserSectionActivity extends AppCompatActivity {
-
-//    FIXME: time picker doesn't work
+public class ProfileFragment extends Fragment {
 
     private TextView textView;
 
+    public ProfileFragment() {
+        // Required empty public constructor
+    }
+
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
     @SuppressLint("SimpleDateFormat")
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_section);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         if(!isUserLogin()){
-            Intent intent = new Intent(UserSectionActivity.this, LoginUser.class);
+            Intent intent = new Intent(getActivity(), LoginUser.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
-            return;
+            return null;
         }
 
-        TextClock textClock = new TextClock(UserSectionActivity.this);
+        TextClock textClock = new TextClock(getActivity().getParent());
 
-        textView = findViewById(R.id.textClock);
+        textView = view.findViewById(R.id.textClock);
         textView.setText(LocalTime.now().format(textClock.is24HourModeEnabled() ?
                 DateTimeFormatter.ofPattern("HH:mm") :
                 DateTimeFormatter.ofPattern("hh:mm a")
         ));
+
         textView.setOnClickListener(v -> {
             boolean is24HourFormat = textClock.is24HourModeEnabled();
 
@@ -67,26 +72,21 @@ public class UserSectionActivity extends AppCompatActivity {
 
 //            select time for the daily remainder
             TimePickerDialog mTimePicker;
-            mTimePicker = new TimePickerDialog(UserSectionActivity.this, (timePicker, selectedHour, selectedMinute) ->
+            mTimePicker = new TimePickerDialog(requireContext().getApplicationContext(), (timePicker, selectedHour, selectedMinute) ->
                     textView.setText(getHHmmInSystemFormat(selectedHour, selectedMinute, is24HourFormat)),
                     hour, minute, is24HourFormat);
             mTimePicker.setTitle("Select Time");
             mTimePicker.show();
         });
-        
-        findViewById(R.id.logout).setOnClickListener(v -> {
+
+        view.findViewById(R.id.logout).setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
-            Intent intent = new Intent(UserSectionActivity.this, LoginUser.class);
+            Intent intent = new Intent(requireContext().getApplicationContext(), LoginUser.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         });
 
-        findViewById(R.id.homeBtn).setOnClickListener(v -> {
-            Intent intent = new Intent(UserSectionActivity.this, MainActivity.class);
-            startActivity(intent);
-        });
-
-        findViewById(R.id.setAlarmButton).setOnClickListener(v -> {
+        view.findViewById(R.id.setAlarmButton).setOnClickListener(v -> {
             CharSequence time;
 
 //          get the time as a string using a specified format
@@ -106,6 +106,8 @@ public class UserSectionActivity extends AppCompatActivity {
 
 //            TODO: implement alarm with alarm manager
         });
+
+        return view;
     }
 
     @NonNull
@@ -132,5 +134,4 @@ public class UserSectionActivity extends AppCompatActivity {
 
         return formattedTime;
     }
-
 }

@@ -3,14 +3,15 @@ package com.example.mycycle;
 import static com.example.mycycle.CalendarUtils.daysInMonthArray;
 import static com.example.mycycle.CalendarUtils.monthYearFromDate;
 
-import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.example.mycycle.recycleView.CalendarAdapter;
 import com.example.mycycle.recycleView.OnItemListener;
@@ -19,30 +20,39 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Optional;
 
-public class CalendarActivity extends AppCompatActivity implements OnItemListener {
+public class CalendarFragment extends Fragment implements OnItemListener {
 
     private TextView monthYearText;
     private RecyclerView calendarRecyclerView;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_calendar);
-        initWidgets();
-        CalendarUtils.selectedDate = Optional.ofNullable(LocalDate.now());
-        updateMonthView(LocalDate.now());
+    public CalendarFragment() {
     }
 
-    private void initWidgets() {
-        calendarRecyclerView = findViewById(R.id.calendarRecyclerView);
-        monthYearText = findViewById(R.id.monthYearTV);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
 
-        Button prev = findViewById(R.id.prevMonth);
-        Button next = findViewById(R.id.nextMonth);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
 
-        prev.setOnClickListener(this::previousMonthAction);
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_calendar, container, false);
 
-        next.setOnClickListener(this::nextMonthAction);
+        initWidgets(view);
+        CalendarUtils.selectedDate = Optional.ofNullable(LocalDate.now());
+        updateMonthView(LocalDate.now());
+
+        return view;
+    }
+
+    private void initWidgets(View v) {
+        calendarRecyclerView = v.findViewById(R.id.calendarRecyclerView);
+        monthYearText = v.findViewById(R.id.monthYearTV);
+
+        v.findViewById(R.id.prevMonth).setOnClickListener(this::previousMonthAction);
+        v.findViewById(R.id.nextMonth).setOnClickListener(this::nextMonthAction);
     }
 
     private void updateMonthView(LocalDate date) {
@@ -50,7 +60,7 @@ public class CalendarActivity extends AppCompatActivity implements OnItemListene
         ArrayList<LocalDate> daysInMonth = daysInMonthArray(date);
 
         CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth, this);
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(), 7);
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(requireContext().getApplicationContext(), 7);
         calendarRecyclerView.setLayoutManager(layoutManager);
         calendarRecyclerView.setAdapter(calendarAdapter);
     }
@@ -76,4 +86,5 @@ public class CalendarActivity extends AppCompatActivity implements OnItemListene
             updateMonthView(date);
         }
     }
+
 }
