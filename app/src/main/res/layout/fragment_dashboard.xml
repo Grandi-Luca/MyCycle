@@ -33,7 +33,7 @@
                 android:layout_height="wrap_content"
                 android:text="mestruazioni"
                 android:textColor="@color/white"
-                android:textFontWeight="600"
+                android:textStyle="bold"
                 android:textSize="18sp" />
 
             <TextView
@@ -41,13 +41,12 @@
                 android:layout_height="wrap_content"
                 android:text="X° giorno"
                 android:textColor="@color/white"
-                android:textFontWeight="700"
+                android:textStyle="bold"
                 android:textSize="34sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="top"
                 android:text="12 giu - Pross mestruazioni"
                 android:textColor="@color/white"
                 android:textSize="16sp" />
@@ -81,7 +80,6 @@
                 android:layout_height="wrap_content"
                 android:text="oggi"
                 android:textColor="@color/white"
-                android:textFontWeight="600"
                 android:textSize="18sp" />
 
             <TextView
@@ -89,7 +87,7 @@
                 android:layout_height="wrap_content"
                 android:text="nessun evento"
                 android:textColor="@color/white"
-                android:textFontWeight="600"
+                android:textStyle="bold"
                 android:textSize="30sp" />
 
 

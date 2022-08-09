@@ -31,7 +31,7 @@
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:text="@string/back"
-                android:textColor="@color/blue"
+                android:textColor="@color/primary"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -40,7 +40,6 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:text=""
                 android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="20sp" />
@@ -52,7 +51,7 @@
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:text="@string/forward"
-                android:textColor="@color/blue"
+                android:textColor="@color/primary"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
@@ -70,7 +69,7 @@
                 android:layout_weight="1"
                 android:text="MON"
                 android:textAlignment="center"
-                android:textColor="@color/gray"
+                android:textColor="@color/primary_dark"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -80,7 +79,7 @@
                 android:layout_weight="1"
                 android:text="TUE"
                 android:textAlignment="center"
-                android:textColor="@color/gray"
+                android:textColor="@color/primary_dark"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -90,7 +89,7 @@
                 android:layout_weight="1"
                 android:text="WED"
                 android:textAlignment="center"
-                android:textColor="@color/gray"
+                android:textColor="@color/primary_dark"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -100,7 +99,7 @@
                 android:layout_weight="1"
                 android:text="THUR"
                 android:textAlignment="center"
-                android:textColor="@color/gray"
+                android:textColor="@color/primary_dark"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -110,7 +109,7 @@
                 android:layout_weight="1"
                 android:text="FRI"
                 android:textAlignment="center"
-                android:textColor="@color/gray"
+                android:textColor="@color/primary_dark"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -120,7 +119,7 @@
                 android:layout_weight="1"
                 android:text="SAT"
                 android:textAlignment="center"
-                android:textColor="@color/gray"
+                android:textColor="@color/primary_dark"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -130,7 +129,7 @@
                 android:layout_weight="1"
                 android:text="SUN"
                 android:textAlignment="center"
-                android:textColor="@color/gray"
+                android:textColor="@color/primary_dark"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
@@ -146,16 +145,65 @@
 
     </LinearLayout>
 
+    <!--  parent FAB  -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_fab"
+        android:id="@+id/extendedFab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/primary"
         android:focusable="true"
         android:src="@drawable/ic_baseline_add_24"
+        app:tint="@color/white"
         app:elevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!--  edit FAB  -->
+
+    <!--  info FAB  -->
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/editFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/primary"
+        android:src="@drawable/ic_baseline_edit_24"
+        app:fabSize="mini"
+        app:elevation="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/extendedFab"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/white" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/infoFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/primary"
+        android:src="@drawable/ic_baseline_info_24"
+        app:fabSize="mini"
+        app:elevation="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/noteFab"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/white" />
+
+    <!--  note FAB  -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/noteFab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/primary"
+        android:src="@drawable/ic_baseline_note_add_24"
+        app:fabSize="mini"
+        app:elevation="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/editFab"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

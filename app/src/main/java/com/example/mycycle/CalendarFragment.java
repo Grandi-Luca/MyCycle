@@ -15,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mycycle.recycleView.CalendarAdapter;
 import com.example.mycycle.recycleView.OnItemListener;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ public class CalendarFragment extends Fragment implements OnItemListener {
 
     private TextView monthYearText;
     private RecyclerView calendarRecyclerView;
+    private boolean isAllFABVisible;
 
     public CalendarFragment() {
     }
@@ -51,8 +54,38 @@ public class CalendarFragment extends Fragment implements OnItemListener {
         calendarRecyclerView = v.findViewById(R.id.calendarRecyclerView);
         monthYearText = v.findViewById(R.id.monthYearTV);
 
-        v.findViewById(R.id.prevMonth).setOnClickListener(this::previousMonthAction);
-        v.findViewById(R.id.nextMonth).setOnClickListener(this::nextMonthAction);
+        var editFAB = (FloatingActionButton) v.findViewById(R.id.editFab);
+        var infoFAB = (FloatingActionButton) v.findViewById(R.id.infoFab);
+        var noteFAB = (FloatingActionButton) v.findViewById(R.id.noteFab);
+
+        infoFAB.setVisibility(View.GONE);
+        noteFAB.setVisibility(View.GONE);
+        editFAB.setVisibility(View.GONE);
+        isAllFABVisible = false;
+
+        v.findViewById(R.id.extendedFab).setOnClickListener(view -> {
+            if(!isAllFABVisible){
+                editFAB.show();
+                noteFAB.show();
+                infoFAB.show();
+            } else {
+                infoFAB.hide();
+                noteFAB.hide();
+                editFAB.hide();
+            }
+            isAllFABVisible = !isAllFABVisible;
+        });
+
+        v.findViewById(R.id.prevMonth).setOnClickListener(view -> {
+            if(!isAllFABVisible){
+                this.previousMonthAction();
+            }
+        });
+        v.findViewById(R.id.nextMonth).setOnClickListener(view -> {
+            if(!isAllFABVisible){
+                this.nextMonthAction();
+            }
+        });
     }
 
     private void updateMonthView(LocalDate date) {
@@ -65,14 +98,14 @@ public class CalendarFragment extends Fragment implements OnItemListener {
         calendarRecyclerView.setAdapter(calendarAdapter);
     }
 
-    public void previousMonthAction(View view) {
+    public void previousMonthAction() {
         LocalDate date = CalendarUtils.selectedDate.orElseGet(LocalDate::now);
 
         CalendarUtils.selectedDate = Optional.ofNullable(date.minusMonths(1));
         updateMonthView(date.minusMonths(1));
     }
 
-    public void nextMonthAction(View view) {
+    public void nextMonthAction() {
         LocalDate date = CalendarUtils.selectedDate.orElseGet(LocalDate::now);
 
         CalendarUtils.selectedDate = Optional.ofNullable(date.plusMonths(1));
@@ -81,7 +114,7 @@ public class CalendarFragment extends Fragment implements OnItemListener {
 
     @Override
     public void onItemClick(int position, LocalDate date) {
-        if(date != null) {
+        if(date != null && !isAllFABVisible) {
             CalendarUtils.selectedDate = Optional.of(date);
             updateMonthView(date);
         }
