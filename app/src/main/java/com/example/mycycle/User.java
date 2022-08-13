@@ -1,11 +1,22 @@
 package com.example.mycycle;
 
+import android.net.Uri;
+
 public class User {
 
-    private String nickname, durationPeriod, durationMenstruation, firstDay, reminder;
+    private String nickname, durationPeriod, durationMenstruation, firstDay, reminder, profilePicture, userID;
     private boolean pill;
 
     public User() {
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public User setUserID(String userID) {
+        this.userID = userID;
+        return this;
     }
 
     public String getNickname() {
@@ -41,6 +52,15 @@ public class User {
 
     public User setFirstDay(String firstDay) {
         this.firstDay = firstDay;
+        return this;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public User setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
         return this;
     }
 }

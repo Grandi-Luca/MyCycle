@@ -51,7 +51,7 @@ public class ProfileFragment extends Fragment {
             return null;
         }
 
-        TextClock textClock = new TextClock(getActivity().getParent());
+        TextClock textClock = new TextClock(getActivity());
 
         textView = view.findViewById(R.id.textClock);
         textView.setText(LocalTime.now().format(textClock.is24HourModeEnabled() ?
@@ -59,25 +59,25 @@ public class ProfileFragment extends Fragment {
                 DateTimeFormatter.ofPattern("hh:mm a")
         ));
 
-        textView.setOnClickListener(v -> {
-            boolean is24HourFormat = textClock.is24HourModeEnabled();
-
-//            get the alarm time and parse it to a LocalTime for extract hour and minute
-            var date = LocalTime.parse(textView.getText(), textClock.is24HourModeEnabled() ?
-                    DateTimeFormatter.ofPattern("HH:mm") :
-                    DateTimeFormatter.ofPattern("hh:mm a")
-            );
-            int hour = date.getHour();
-            int minute = date.getMinute();
-
-//            select time for the daily remainder
-            TimePickerDialog mTimePicker;
-            mTimePicker = new TimePickerDialog(requireContext().getApplicationContext(), (timePicker, selectedHour, selectedMinute) ->
-                    textView.setText(getHHmmInSystemFormat(selectedHour, selectedMinute, is24HourFormat)),
-                    hour, minute, is24HourFormat);
-            mTimePicker.setTitle("Select Time");
-            mTimePicker.show();
-        });
+//        textView.setOnClickListener(v -> {
+//            boolean is24HourFormat = textClock.is24HourModeEnabled();
+//
+////            get the alarm time and parse it to a LocalTime for extract hour and minute
+//            var date = LocalTime.parse(textView.getText(), textClock.is24HourModeEnabled() ?
+//                    DateTimeFormatter.ofPattern("HH:mm") :
+//                    DateTimeFormatter.ofPattern("hh:mm a")
+//            );
+//            int hour = date.getHour();
+//            int minute = date.getMinute();
+//
+////            select time for the daily remainder
+//            TimePickerDialog mTimePicker;
+//            mTimePicker = new TimePickerDialog(requireContext().getApplicationContext(), (timePicker, selectedHour, selectedMinute) ->
+//                    textView.setText(getHHmmInSystemFormat(selectedHour, selectedMinute, is24HourFormat)),
+//                    hour, minute, is24HourFormat);
+//            mTimePicker.setTitle("Select Time");
+//            mTimePicker.show();
+//        });
 
         view.findViewById(R.id.logout).setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
@@ -86,26 +86,26 @@ public class ProfileFragment extends Fragment {
             startActivity(intent);
         });
 
-        view.findViewById(R.id.setAlarmButton).setOnClickListener(v -> {
-            CharSequence time;
-
-//          get the time as a string using a specified format
-            if (!textClock.is24HourModeEnabled()) {
-                time = CalendarUtils.formattedTime(textView.getText().toString(),
-                        new SimpleDateFormat("hh:mm aa"),
-                        new SimpleDateFormat("HH:mm"));
-            } else {
-                time = textView.getText().toString();
-            }
-            final var date = LocalTime.parse(time);
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(Calendar.HOUR_OF_DAY, date.getHour());
-            calendar.set(Calendar.MINUTE, date.getMinute());
-            calendar.set(Calendar.SECOND, date.getSecond());
-
-//            TODO: implement alarm with alarm manager
-        });
+//        view.findViewById(R.id.setAlarmButton).setOnClickListener(v -> {
+//            CharSequence time;
+//
+////          get the time as a string using a specified format
+//            if (!textClock.is24HourModeEnabled()) {
+//                time = CalendarUtils.formattedTime(textView.getText().toString(),
+//                        new SimpleDateFormat("hh:mm aa"),
+//                        new SimpleDateFormat("HH:mm"));
+//            } else {
+//                time = textView.getText().toString();
+//            }
+//            final var date = LocalTime.parse(time);
+//
+//            Calendar calendar = Calendar.getInstance();
+//            calendar.set(Calendar.HOUR_OF_DAY, date.getHour());
+//            calendar.set(Calendar.MINUTE, date.getMinute());
+//            calendar.set(Calendar.SECOND, date.getSecond());
+//
+////            TODO: implement alarm with alarm manager
+//        });
 
         return view;
     }

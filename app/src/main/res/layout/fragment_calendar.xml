@@ -145,65 +145,63 @@
 
     </LinearLayout>
 
-    <!--  parent FAB  -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/extendedFab"
+    <com.google.android.flexbox.FlexboxLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/primary"
-        android:focusable="true"
-        android:src="@drawable/ic_baseline_add_24"
-        app:tint="@color/white"
-        app:elevation="0dp"
+        app:flexDirection="column_reverse"
+        app:showDividerHorizontal="middle"
+        app:dividerDrawable="@drawable/divider"
+        app:alignItems="center"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!--  edit FAB  -->
+        <!--  parent FAB  -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/extendedFab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/primary"
+            android:focusable="true"
+            android:src="@drawable/ic_baseline_add_24"
+            app:elevation="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:tint="@color/white" />
 
-    <!--  info FAB  -->
+        <!--  edit FAB  -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/editFab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/primary"
+            android:src="@drawable/ic_baseline_edit_24"
+            app:elevation="0dp"
+            app:fabSize="mini"
+            app:tint="@color/white" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/editFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="6dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/primary"
-        android:src="@drawable/ic_baseline_edit_24"
-        app:fabSize="mini"
-        app:elevation="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/extendedFab"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:tint="@color/white" />
+        <!--  info FAB  -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/infoFab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/primary"
+            android:src="@drawable/ic_baseline_info_24"
+            app:elevation="0dp"
+            app:fabSize="mini"
+            app:tint="@color/white" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/infoFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="6dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/primary"
-        android:src="@drawable/ic_baseline_info_24"
-        app:fabSize="mini"
-        app:elevation="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/noteFab"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:tint="@color/white" />
+        <!--  note FAB  -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/noteFab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/primary"
+            android:src="@drawable/ic_baseline_note_add_24"
+            app:elevation="0dp"
+            app:fabSize="mini"
+            app:tint="@color/white" />
+    </com.google.android.flexbox.FlexboxLayout>
 
-    <!--  note FAB  -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/noteFab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="6dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/primary"
-        android:src="@drawable/ic_baseline_note_add_24"
-        app:fabSize="mini"
-        app:elevation="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/editFab"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:tint="@color/white" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

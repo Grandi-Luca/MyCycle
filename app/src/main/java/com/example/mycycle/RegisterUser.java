@@ -25,9 +25,14 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
+import com.google.firebase.storage.UploadTask;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -92,21 +97,21 @@ public class RegisterUser extends AppCompatActivity {
             picker.show();
         });
 
-        findViewById(R.id.register).setOnClickListener((View v) -> registerUser());
-
-        findViewById(R.id.buttonLoadPicture).setOnClickListener((View v)->{
-
+        // load image from gallery
+        findViewById(R.id.buttonLoadPicture).setOnClickListener(view -> {
             Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
             launcher.launch(galleryIntent);
         });
+
+        findViewById(R.id.register).setOnClickListener(view -> registerUser());
+
 
         findViewById(R.id.pill).setOnClickListener(v->{
             CheckBox checkBox = findViewById(R.id.pill);
             if(checkBox.isChecked()){
                 findViewById(R.id.setAlarmContainer).setVisibility(View.VISIBLE);
             } else {
-                findViewById(R.id.setAlarmContainer).setVisibility(View.INVISIBLE);
+                findViewById(R.id.setAlarmContainer).setVisibility(View.GONE);
             }
         });
 
@@ -143,7 +148,7 @@ public class RegisterUser extends AppCompatActivity {
             return;
         }
 
-//        check if the patterns matches with the fields
+        // check if the patterns matches with the fields
         if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
             this.editEmail.setError("Please provide valid email");
             this.editEmail.requestFocus();
@@ -167,31 +172,40 @@ public class RegisterUser extends AppCompatActivity {
             return;
         }
 
-//        create new user and save in firebase realtime database
+        // create new user and save in firebase realtime database
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(registerAuth -> {
                     if(registerAuth.isSuccessful()){
+
+//                      create user
                         User user = new User()
                                 .setNickname(nickname)
                                 .setFirstDay(firstDay)
                                 .setDurationPeriod(durationPeriod)
-                                .setDurationMenstruation(durationMenstruation);
+                                .setDurationMenstruation(durationMenstruation)
+                                .setProfilePicture(" ");
 
-                        FirebaseDatabase.getInstance("https://auth-89f75-default-rtdb.europe-west1.firebasedatabase.app")
-                                .getReference("users")
-                                .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                                .setValue(user)
-                                .addOnCompleteListener(register -> {
+                        var uReference =  FirebaseDatabase.getInstance("https://auth-89f75-default-rtdb.europe-west1.firebasedatabase.app")
+                                .getReference("users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
+
+//                      insert user on database
+                        uReference.setValue(user).addOnCompleteListener(register -> {
                                     if(register.isSuccessful()){
                                         Toast.makeText(RegisterUser.this, "User has been registered successfully", Toast.LENGTH_LONG).show();
                                         Intent intent = new Intent(RegisterUser.this, MainActivity.class);
                                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
                                         startActivity(intent);
 
-                                        FirebaseStorage.getInstance("gs://auth-89f75.appspot.com")
-                                                .getReference()
-                                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                                .putFile(uriProfileImage);
+                                        var storageReference = FirebaseStorage.getInstance("gs://auth-89f75.appspot.com")
+                                                .getReference().child(Objects.requireNonNull(uReference.getKey()));
+
+//                                      insert profile picture on database storage
+                                        storageReference.putFile(uriProfileImage).addOnSuccessListener(taskSnapshot -> {
+                                            taskSnapshot.getMetadata();
+                                            Task<Uri> downloadUrl = storageReference.getDownloadUrl();
+//                                          link profile picture database storage - database
+                                            downloadUrl.addOnSuccessListener(uri -> uReference.child("profilePicture").setValue(uri.toString()));
+                                        });
 
 //                                        TODO: add Alarm manager to create a daily remainder
 

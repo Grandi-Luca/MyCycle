@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         } else if(fragment.getClass().getName() == ForumFragment.class.getName()){
             mBottomNavigationView.getMenu().findItem(R.id.forumBtn).setChecked(true);
         } else if(fragment.getClass().getName() == ProfileFragment.class.getName()){
-            mBottomNavigationView.getMenu().findItem(R.id.profileImage).setChecked(true);
+            mBottomNavigationView.getMenu().findItem(R.id.userBtn).setChecked(true);
         }
     }
 }

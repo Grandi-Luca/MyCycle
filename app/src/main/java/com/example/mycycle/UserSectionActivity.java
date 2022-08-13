@@ -38,7 +38,6 @@ public class UserSectionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_section);
 
         if(!isUserLogin()){
             Intent intent = new Intent(UserSectionActivity.this, LoginUser.class);
