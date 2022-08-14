@@ -16,8 +16,12 @@ import com.example.mycycle.QuestionItem;
 import com.example.mycycle.R;
 import com.example.mycycle.Utils;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
+import java.util.Queue;
+import java.util.stream.Collectors;
 
 public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.QuestionViewHolder> {
 
@@ -27,28 +31,23 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
     */
     private final Context context;
     private final RecyclerView.RecycledViewPool viewPool = new RecyclerView.RecycledViewPool();
-    private List<QuestionItem> questions;
+    private final Deque<QuestionItem> questions;
 
     public QuestionAdapter(Context context) {
         this.context = context;
+        this.questions = new ArrayDeque<>();
+    }
+
+    public void addQuestion(QuestionItem item) {
+        this.questions.addFirst(item);
     }
 
     public void setQuestions(List<QuestionItem> questions) {
-        this.questions = questions;
+        this.questions.addAll(questions);
     }
 
-    public List<QuestionItem> getQuestions() {
-        return questions;
-    }
-
-    public void addAllQuests(List<QuestionItem> quests) {
-        this.questions.addAll(quests);
-    }
-
-    public void clearAllQuests() {
-        if(getItemCount() != 0){
-            this.questions.clear();
-        }
+    public void clearAll(){
+        this.questions.clear();
     }
 
     @NonNull
@@ -68,7 +67,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
     public void onBindViewHolder(@NonNull QuestionViewHolder holder, int position) {
         /* Create an instance of the QuestionItem
         class for the given position */
-        QuestionItem question = questions.get(position);
+        QuestionItem question = new ArrayList<>(questions).get(position);
 
         holder.title.setText(question.getQuestionTitle());
         holder.description.setText(question.getQuestionDescription());
@@ -106,7 +105,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
 
     @Override
     public int getItemCount() {
-        return questions == null ? 0 : questions.size();
+        return questions.size();
     }
 
     static class QuestionViewHolder extends RecyclerView.ViewHolder {
