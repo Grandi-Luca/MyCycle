@@ -1,21 +1,35 @@
-package com.example.mycycle;
+package com.example.mycycle.recycleView;
 
-
-import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import com.example.mycycle.ReplyItem;
 
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Queue;
+
+@SuppressWarnings("unused")
 public class QuestionItem {
 
-    private String questionTitle, questionDescription, nickname, userID, uri;
-    private ArrayList<ReplyItem> questionReplies;
+    private String questionTitle, questionDescription, nickname, userID, uri, postID;
+    private Queue<ReplyItem> questionReplies;
     private long timestamp;
+    private boolean isExpand;
 
     public QuestionItem() {
-        this.questionReplies = new ArrayList<>();
+        this.questionReplies = new ArrayDeque<>();
+        this.isExpand = false;
+    }
+
+    public String getPostID() {
+        return postID;
+    }
+
+    public QuestionItem setPostID(String postID) {
+        this.postID = postID;
+        return this;
     }
 
     public String getQuestionTitle() {
@@ -54,11 +68,11 @@ public class QuestionItem {
         return this;
     }
 
-    public ArrayList<ReplyItem> getQuestionReplies() {
-        return questionReplies;
+    public List<ReplyItem> getQuestionReplies() {
+        return new ArrayList<>(questionReplies);
     }
 
-    public QuestionItem setQuestionReplies(ArrayList<ReplyItem> questionReplies) {
+    public QuestionItem setQuestionReplies(Queue<ReplyItem> questionReplies) {
         this.questionReplies = questionReplies;
         return this;
     }
@@ -79,6 +93,14 @@ public class QuestionItem {
     public QuestionItem setUri(String uri) {
         this.uri = uri;
         return this;
+    }
+
+    public boolean isExpand() {
+        return isExpand;
+    }
+
+    public void toggleExpand() {
+        this.isExpand = !this.isExpand;
     }
 
     @NonNull

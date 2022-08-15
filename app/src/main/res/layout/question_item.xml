@@ -33,23 +33,20 @@
                 android:id="@+id/nickname"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="24dp"
-                android:text="User0001999" />
+                android:layout_marginStart="24dp" />
         </com.google.android.flexbox.FlexboxLayout>
 
         <TextView
             android:id="@+id/questionTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Title"
             android:textSize="24sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/questionDescription"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="description" />
+            android:layout_height="wrap_content" />
 
         <ImageButton
             android:id="@+id/arrowReply"
@@ -61,10 +58,48 @@
             app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24"
             app:tint="@color/primary_dark" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/replyList"
+        <LinearLayout
+            android:id="@+id/expandLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/nestedSwipeLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/replyList"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:flexWrap="wrap"
+                app:justifyContent="flex_end">
+
+                <EditText
+                    android:id="@+id/newReplyText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:importantForAutofill="no"
+                    android:inputType="text"
+                    android:layout_marginBottom="5dp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/addNewReply"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/save" />
+
+            </com.google.android.flexbox.FlexboxLayout>
+
+        </LinearLayout>
 
     </com.google.android.flexbox.FlexboxLayout>
 

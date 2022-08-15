@@ -5,4 +5,5 @@
     <string name="add_new_event">Add new event</string>
     <string name="button">Logout</string>
     <string name="today">Oggi</string>
+    <string name="save">SAVE</string>
 </resources>

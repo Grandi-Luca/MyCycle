@@ -7,15 +7,14 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.mycycle.recycleView.QuestionAdapter;
+import com.example.mycycle.recycleView.QuestionItem;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -30,7 +29,7 @@ public class ForumFragment extends Fragment {
     private boolean isLoading;
     private QuestionAdapter adapter;
     private String key;
-    private DAOQuestion dao;
+    private DAOPost dao;
     private User currentUser;
     private SwipeRefreshLayout swipeRefreshLayout;
     private static int i = 0;
@@ -52,7 +51,7 @@ public class ForumFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_forum, container, false);
 
         this.adapter = new QuestionAdapter(getActivity());
-        this.dao = new DAOQuestion();
+        this.dao = new DAOPost("questions");
         this.key = null;
         this.isLoading = false;
 
@@ -88,7 +87,7 @@ public class ForumFragment extends Fragment {
                 int visibleItemCount = Objects.requireNonNull(linearLayoutManager).getChildCount();
                 int totalItemCount = Objects.requireNonNull(linearLayoutManager).getItemCount();
                 int lastVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-                if(lastVisible + visibleItemCount >= totalItemCount){
+                if(lastVisible + visibleItemCount >= totalItemCount) {
                     if(!isLoading) {
                         isLoading = true;
                         loadData(true);
@@ -113,7 +112,6 @@ public class ForumFragment extends Fragment {
                                         .setNickname(Objects.requireNonNull(currentUser).getNickname())
                                         .setQuestionTitle(String.valueOf(++i))
                                         .setQuestionDescription("test")
-                                        .setQuestionReplies(new ArrayList<>())
                                         .setTimestamp(-1 * new Date().getTime())
                                         .setUri(currentUser.getProfilePicture());
 
@@ -148,6 +146,7 @@ public class ForumFragment extends Fragment {
                 final var questsList = new ArrayList<QuestionItem>();
                 for (var data : snapshot.getChildren()){
                     QuestionItem quest = data.getValue(QuestionItem.class);
+                    Objects.requireNonNull(quest).setPostID(data.getKey());
                     questsList.add(quest);
                     key = String.valueOf(Objects.requireNonNull(quest).getTimestamp());
                 }
