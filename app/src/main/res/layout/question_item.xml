@@ -56,7 +56,8 @@
             android:background="?android:selectableItemBackground"
             android:scaleType="fitXY"
             app:srcCompat="@drawable/ic_baseline_arrow_drop_down_24"
-            app:tint="@color/primary_dark" />
+            app:tint="@color/primary_dark"
+            android:layout_marginBottom="30dp"/>
 
         <LinearLayout
             android:id="@+id/expandLayout"
@@ -64,40 +65,43 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                android:id="@+id/nestedSwipeLayout"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/replyList"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/replyList"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-
-            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-
-            <com.google.android.flexbox.FlexboxLayout
+            <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:flexWrap="wrap"
-                app:justifyContent="flex_end">
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/item_disabled"
+                app:cardCornerRadius="5dp">
 
-                <EditText
-                    android:id="@+id/newReplyText"
+                <com.google.android.flexbox.FlexboxLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:importantForAutofill="no"
-                    android:inputType="text"
-                    android:layout_marginBottom="5dp"/>
+                    app:flexWrap="wrap"
+                    app:justifyContent="flex_end"
+                    android:paddingHorizontal="10dp"
+                    android:paddingTop="10dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/addNewReply"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/save" />
+                    <EditText
+                        android:id="@+id/newReplyText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:importantForAutofill="no"
+                        android:inputType="text"
+                        android:layout_marginBottom="5dp"/>
 
-            </com.google.android.flexbox.FlexboxLayout>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/addNewReply"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/save" />
+
+                </com.google.android.flexbox.FlexboxLayout>
+
+            </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>
 

@@ -18,10 +18,8 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
 
 public class ProfileFragment extends Fragment {
 
@@ -59,25 +57,25 @@ public class ProfileFragment extends Fragment {
                 DateTimeFormatter.ofPattern("hh:mm a")
         ));
 
-//        textView.setOnClickListener(v -> {
-//            boolean is24HourFormat = textClock.is24HourModeEnabled();
-//
-////            get the alarm time and parse it to a LocalTime for extract hour and minute
-//            var date = LocalTime.parse(textView.getText(), textClock.is24HourModeEnabled() ?
-//                    DateTimeFormatter.ofPattern("HH:mm") :
-//                    DateTimeFormatter.ofPattern("hh:mm a")
-//            );
-//            int hour = date.getHour();
-//            int minute = date.getMinute();
-//
-////            select time for the daily remainder
-//            TimePickerDialog mTimePicker;
-//            mTimePicker = new TimePickerDialog(requireContext().getApplicationContext(), (timePicker, selectedHour, selectedMinute) ->
-//                    textView.setText(getHHmmInSystemFormat(selectedHour, selectedMinute, is24HourFormat)),
-//                    hour, minute, is24HourFormat);
-//            mTimePicker.setTitle("Select Time");
-//            mTimePicker.show();
-//        });
+        textView.setOnClickListener(v -> {
+            boolean is24HourFormat = textClock.is24HourModeEnabled();
+
+//            get the alarm time and parse it to a LocalTime for extract hour and minute
+            var date = LocalTime.parse(textView.getText(), textClock.is24HourModeEnabled() ?
+                    DateTimeFormatter.ofPattern("HH:mm") :
+                    DateTimeFormatter.ofPattern("hh:mm a")
+            );
+            int hour = date.getHour();
+            int minute = date.getMinute();
+
+//            select time for the daily remainder
+            TimePickerDialog mTimePicker;
+            mTimePicker = new TimePickerDialog(requireContext().getApplicationContext(), (timePicker, selectedHour, selectedMinute) ->
+                    textView.setText(getHHmmInSystemFormat(selectedHour, selectedMinute, is24HourFormat)),
+                    hour, minute, is24HourFormat);
+            mTimePicker.setTitle("Select Time");
+            mTimePicker.show();
+        });
 
         view.findViewById(R.id.logout).setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();

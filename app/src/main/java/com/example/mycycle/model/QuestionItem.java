@@ -1,26 +1,20 @@
-package com.example.mycycle.recycleView;
+package com.example.mycycle.model;
 
 
 import androidx.annotation.NonNull;
 
-import com.example.mycycle.ReplyItem;
-
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 
 @SuppressWarnings("unused")
 public class QuestionItem {
 
     private String questionTitle, questionDescription, nickname, userID, uri, postID;
-    private Queue<ReplyItem> questionReplies;
+    private List<ReplyItem> questionReplies;
     private long timestamp;
-    private boolean isExpand;
 
     public QuestionItem() {
-        this.questionReplies = new ArrayDeque<>();
-        this.isExpand = false;
+        this.questionReplies = new ArrayList<>();
     }
 
     public String getPostID() {
@@ -72,8 +66,8 @@ public class QuestionItem {
         return new ArrayList<>(questionReplies);
     }
 
-    public QuestionItem setQuestionReplies(Queue<ReplyItem> questionReplies) {
-        this.questionReplies = questionReplies;
+    public QuestionItem setQuestionReplies(List<ReplyItem> questionReplies) {
+        this.questionReplies.addAll(questionReplies);
         return this;
     }
 
@@ -93,14 +87,6 @@ public class QuestionItem {
     public QuestionItem setUri(String uri) {
         this.uri = uri;
         return this;
-    }
-
-    public boolean isExpand() {
-        return isExpand;
-    }
-
-    public void toggleExpand() {
-        this.isExpand = !this.isExpand;
     }
 
     @NonNull

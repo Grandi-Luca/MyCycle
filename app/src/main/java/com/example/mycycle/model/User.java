@@ -1,6 +1,4 @@
-package com.example.mycycle;
-
-import android.net.Uri;
+package com.example.mycycle.model;
 
 public class User {
 

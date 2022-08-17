@@ -1,9 +1,10 @@
-package com.example.mycycle.recycleView;
+package com.example.mycycle.adapter;
 
 import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,7 +15,7 @@ import com.example.mycycle.R;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
-public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
+public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder> {
     private final ArrayList<LocalDate> days;
     private final OnItemListener onItemListener;
 
@@ -59,5 +60,30 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> {
     public int getItemCount()
     {
         return days.size();
+    }
+
+    static class CalendarViewHolder extends RecyclerView.ViewHolder{
+
+        private final View parentView;
+        private final TextView dayOfMonth;
+
+        public CalendarViewHolder(@NonNull View itemView, OnItemListener onItemListener, ArrayList<LocalDate> days) {
+            super(itemView);
+            parentView = itemView.findViewById(R.id.parentView);
+            dayOfMonth = itemView.findViewById(R.id.cellDayText);
+
+            itemView.setOnClickListener((View v)->{
+                onItemListener.onItemClick(getAdapterPosition(), days.get(getAdapterPosition()));
+            });
+        }
+
+        public View getParentView() {
+            return parentView;
+        }
+
+        public TextView getDayOfMonth() {
+            return dayOfMonth;
+        }
+
     }
 }

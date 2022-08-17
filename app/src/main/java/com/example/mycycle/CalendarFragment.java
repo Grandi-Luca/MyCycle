@@ -13,9 +13,8 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.mycycle.recycleView.CalendarAdapter;
-import com.example.mycycle.recycleView.OnItemListener;
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.example.mycycle.adapter.CalendarAdapter;
+import com.example.mycycle.adapter.OnItemListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.time.LocalDate;

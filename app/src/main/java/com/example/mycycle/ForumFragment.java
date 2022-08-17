@@ -7,14 +7,19 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.example.mycycle.recycleView.QuestionAdapter;
-import com.example.mycycle.recycleView.QuestionItem;
+import com.example.mycycle.model.QuestionItem;
+import com.example.mycycle.model.ReplyItem;
+import com.example.mycycle.model.User;
+import com.example.mycycle.adapter.QuestionAdapter;
+import com.example.mycycle.repo.DAOPost;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -26,11 +31,8 @@ import java.util.Objects;
 
 public class ForumFragment extends Fragment {
 
-    private boolean isLoading;
     private QuestionAdapter adapter;
-    private String key;
     private DAOPost dao;
-    private User currentUser;
     private SwipeRefreshLayout swipeRefreshLayout;
     private static int i = 0;
 
@@ -51,9 +53,7 @@ public class ForumFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_forum, container, false);
 
         this.adapter = new QuestionAdapter(getActivity());
-        this.dao = new DAOPost("questions");
-        this.key = null;
-        this.isLoading = false;
+        this.dao = new DAOPost();
 
         initWidget(view);
 
@@ -73,26 +73,13 @@ public class ForumFragment extends Fragment {
         questionRecyclerView.setAdapter(adapter);
         questionRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        loadData(false);
+        loadData();
 
-        questionRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                LinearLayoutManager linearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                int visibleItemCount = Objects.requireNonNull(linearLayoutManager).getChildCount();
-                int totalItemCount = Objects.requireNonNull(linearLayoutManager).getItemCount();
-                int lastVisible = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-                if(lastVisible + visibleItemCount >= totalItemCount) {
-                    if(!isLoading) {
-                        isLoading = true;
-                        loadData(true);
-                    }
-                }
+            public void onRefresh() {
+                loadData();
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
 
@@ -105,7 +92,7 @@ public class ForumFragment extends Fragment {
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                currentUser = snapshot.getValue(User.class);
+                                var currentUser = snapshot.getValue(User.class);
                                 Objects.requireNonNull(currentUser).setUserID(FirebaseAuth.getInstance().getCurrentUser().getUid());
                                 var quest = new QuestionItem()
                                         .setUserID(currentUser.getUserID())
@@ -120,7 +107,6 @@ public class ForumFragment extends Fragment {
                                         .push().setValue(quest)
                                         .addOnCompleteListener(task -> {
                                             if (task.isSuccessful()){
-                                                System.err.println(key);
                                                 Toast.makeText(getActivity(), "post has been added successfully", Toast.LENGTH_SHORT).show();
                                             } else {
                                                 Toast.makeText(getActivity(), "Failed to submit new post! Try again", Toast.LENGTH_LONG).show();
@@ -135,26 +121,56 @@ public class ForumFragment extends Fragment {
                         }));
     }
 
-    private void loadData(boolean onScroll) {
+    private void loadData() {
         swipeRefreshLayout.setRefreshing(true);
-        this.dao.get(key).addValueEventListener(new ValueEventListener() {
+        this.dao.get(null).addValueEventListener(new ValueEventListener() {
+
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (!onScroll) {
+                if(snapshot.exists()) {
                     adapter.clearAll();
-                }
-                final var questsList = new ArrayList<QuestionItem>();
-                for (var data : snapshot.getChildren()){
-                    QuestionItem quest = data.getValue(QuestionItem.class);
-                    Objects.requireNonNull(quest).setPostID(data.getKey());
-                    questsList.add(quest);
-                    key = String.valueOf(Objects.requireNonNull(quest).getTimestamp());
-                }
-                adapter.setQuestions(questsList);
-                adapter.notifyDataSetChanged();
+                    for (var data : snapshot.getChildren()) {
+                        var item = data.getValue(QuestionItem.class);
+                        item.setPostID(data.getKey());
 
-                isLoading = false;
-                swipeRefreshLayout.setRefreshing(false);
+                        // get replies
+                        dao.getReplies(item.getPostID()).addChildEventListener(new ChildEventListener() {
+
+                            @Override
+                            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                                var replies = new ArrayList<ReplyItem>();
+                                if (snapshot.exists()) {
+                                    replies.add(snapshot.getValue(ReplyItem.class));
+                                }
+                                item.setQuestionReplies(replies);
+                                adapter.notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                            }
+
+                            @Override
+                            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+                            }
+
+                            @Override
+                            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                        adapter.addQuestion(item);
+                        adapter.notifyDataSetChanged();
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }
             }
 
             @Override

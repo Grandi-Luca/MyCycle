@@ -1,8 +1,4 @@
-package com.example.mycycle;
-
-import android.net.Uri;
-
-import java.time.LocalDateTime;
+package com.example.mycycle.model;
 
 public class ReplyItem {
 

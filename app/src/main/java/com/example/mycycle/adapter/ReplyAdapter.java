@@ -1,4 +1,4 @@
-package com.example.mycycle.recycleView;
+package com.example.mycycle.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,21 +12,19 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.mycycle.R;
-import com.example.mycycle.ReplyItem;
+import com.example.mycycle.model.ReplyItem;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
 public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.ReplyViewHolder> {
 
     private final Context context;
-    private final Deque<ReplyItem> replies;
+    private final List<ReplyItem> replies;
 
     public ReplyAdapter(Context context) {
         this.context = context;
-        this.replies = new ArrayDeque<>();
+        this.replies = new ArrayList<>();
     }
 
     public void setReplies(List<ReplyItem> replies) {
@@ -38,7 +36,7 @@ public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.ReplyViewHol
     }
 
     public void addReply(ReplyItem item){
-        this.replies.addFirst(item);
+        this.replies.add(item);
     }
 
     public List<ReplyItem> getReplies() {
@@ -63,8 +61,6 @@ public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.ReplyViewHol
         Glide.with(context)
                 .load(reply.getUri())
                 .into(holder.profilePicture);
-
-
     }
 
     @Override
