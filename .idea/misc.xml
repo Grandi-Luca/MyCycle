@@ -11,6 +11,7 @@
         <entry key="app/src/main/res/drawable/cell_selected.xml" value="0.211" />
         <entry key="app/src/main/res/drawable/cell_today.xml" value="0.211" />
         <entry key="app/src/main/res/drawable/cell_with_border.xml" value="0.162" />
+        <entry key="app/src/main/res/drawable/corner_background.xml" value="0.204" />
         <entry key="app/src/main/res/drawable/divider.xml" value="0.248" />
         <entry key="app/src/main/res/drawable/divider_10.xml" value="0.217" />
         <entry key="app/src/main/res/drawable/edit_text_with_stroke.xml" value="0.139" />
@@ -31,6 +32,7 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.29506120726044743" />
         <entry key="app/src/main/res/layout/activity_register_user.xml" value="0.17371826171875002" />
         <entry key="app/src/main/res/layout/activity_user_section.xml" value="0.2563405797101449" />
+        <entry key="app/src/main/res/layout/add_new_post_dialog.xml" value="0.22170562744140626" />
         <entry key="app/src/main/res/layout/answear_card.xml" value="0.23674468994140627" />
         <entry key="app/src/main/res/layout/calendar.xml" value="0.36302083333333335" />
         <entry key="app/src/main/res/layout/calendar_cell.xml" value="0.36302083333333335" />

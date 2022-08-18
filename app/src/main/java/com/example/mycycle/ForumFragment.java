@@ -1,13 +1,22 @@
 package com.example.mycycle;
 
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +33,9 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
+import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -54,6 +66,13 @@ public class ForumFragment extends Fragment {
 
         this.adapter = new QuestionAdapter(getActivity());
         this.dao = new DAOPost();
+        KeyboardVisibilityEvent.setEventListener(
+                getActivity(),
+                getViewLifecycleOwner(),
+                isOpen -> {
+                    view.findViewById(R.id.addFab).setVisibility(isOpen ?
+                            View.GONE : View.VISIBLE);
+                });
 
         initWidget(view);
 
@@ -86,39 +105,7 @@ public class ForumFragment extends Fragment {
 
 //        TODO: insert new fragment to create a new post
         view.findViewById(R.id.addFab).setOnClickListener(v ->
-                FirebaseDatabase.getInstance("https://auth-89f75-default-rtdb.europe-west1.firebasedatabase.app/")
-                .getReference("users")
-                .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                var currentUser = snapshot.getValue(User.class);
-                                Objects.requireNonNull(currentUser).setUserID(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                                var quest = new QuestionItem()
-                                        .setUserID(currentUser.getUserID())
-                                        .setNickname(Objects.requireNonNull(currentUser).getNickname())
-                                        .setQuestionTitle(String.valueOf(++i))
-                                        .setQuestionDescription("test")
-                                        .setTimestamp(-1 * new Date().getTime())
-                                        .setUri(currentUser.getProfilePicture());
-
-                                FirebaseDatabase.getInstance("https://auth-89f75-default-rtdb.europe-west1.firebasedatabase.app/")
-                                        .getReference("questions")
-                                        .push().setValue(quest)
-                                        .addOnCompleteListener(task -> {
-                                            if (task.isSuccessful()){
-                                                Toast.makeText(getActivity(), "post has been added successfully", Toast.LENGTH_SHORT).show();
-                                            } else {
-                                                Toast.makeText(getActivity(), "Failed to submit new post! Try again", Toast.LENGTH_LONG).show();
-                                            }
-                                        });
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        }));
+                showDialog());
     }
 
     private void loadData() {
@@ -180,6 +167,37 @@ public class ForumFragment extends Fragment {
             }
         });
     }
+
+    private void showDialog() {
+        var dialog = new Dialog(getActivity());
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.add_new_post_dialog);
+        dialog.getWindow().getAttributes().windowAnimations = R.style.dialog_animation;
+        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        var btn_cancel = dialog.findViewById(R.id.cancelButton);
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+        btn_cancel.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
+
+        dialog.findViewById(R.id.addNewPost).setOnClickListener(v -> {
+            var title = (EditText) dialog.findViewById(R.id.title);
+            var description = (EditText) dialog.findViewById(R.id.questionDescription);
+
+            if(description.getText() == null || description.getText().toString().trim().isEmpty()){
+                return;
+            }
+
+            dao.addQuestion(
+                    title.getText() == null ? "" : title.getText().toString(),
+                    description.getText().toString()
+            );
+            dialog.dismiss();
+        });
+    }
+
 
 }
 

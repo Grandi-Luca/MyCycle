@@ -6,4 +6,6 @@
     <string name="button">Logout</string>
     <string name="today">Oggi</string>
     <string name="save">SAVE</string>
+    <string name="add">ADD</string>
+    <string name="cancel">CANCEL</string>
 </resources>
