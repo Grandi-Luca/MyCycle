@@ -13,7 +13,6 @@ import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
-import com.example.mycycle.LoginUser;
 import com.example.mycycle.worker.AlarmReceiver;
 
 import java.util.Calendar;
@@ -30,7 +29,7 @@ public class NotificationService implements Notification, DailyNotification {
 
     public void setDailyNotification(Calendar calendar) {
         setNotification(calendar);
-        showAlert();
+        showAlert("notifica giornaliera fprogrammata");
     }
 
     public void setNotification(Calendar calendar) {
@@ -39,7 +38,7 @@ public class NotificationService implements Notification, DailyNotification {
 
         // add one day if time selected is before system time
         if (cur.after(calendar)) {
-            calendar.add(Calendar.DAY_OF_YEAR, 1);
+            calendar.add(Calendar.DATE, 1);
         }
 
         PendingIntent pendingIntent = getPendingIntent(
@@ -56,6 +55,24 @@ public class NotificationService implements Notification, DailyNotification {
         );
     }
 
+    @Override
+    public void cancelNotification(int notificationID) {
+        AlarmManager alarmManager =
+                (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        PendingIntent pendingIntent =
+                getPendingIntent(new Intent(context, AlarmReceiver.class));
+
+        if (pendingIntent != null && alarmManager != null) {
+            alarmManager.cancel(pendingIntent);
+        }
+    }
+
+    @Override
+    public void cancelDailyNotification() {
+        cancelNotification(AlarmReceiver.NOTIFICATION_ID);
+        showAlert("notifica giornaliera disabilitata");
+    }
+
     private PendingIntent getPendingIntent(Intent intent) {
         return PendingIntent.getBroadcast(
                 context,
@@ -65,8 +82,8 @@ public class NotificationService implements Notification, DailyNotification {
         );
     }
 
-    private void showAlert() {
-        Toast.makeText(context, "notifica programmata", Toast.LENGTH_SHORT).show();
+    private void showAlert(String msg) {
+        Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)

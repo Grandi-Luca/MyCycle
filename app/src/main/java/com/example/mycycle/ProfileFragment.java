@@ -103,7 +103,7 @@ public class ProfileFragment extends Fragment {
         view.findViewById(R.id.setAlarmButton).setOnClickListener(v -> {
             CharSequence time;
 
-//          get the time as a string using a specified format
+            // get the time as a string using a specified format
             if (!textClock.is24HourModeEnabled()) {
                 time = CalendarUtils.formattedTime(textView.getText().toString(),
                         new SimpleDateFormat("hh:mm aa"),
@@ -118,8 +118,12 @@ public class ProfileFragment extends Fragment {
             calendar.set(Calendar.HOUR_OF_DAY, date.getHour());
             calendar.set(Calendar.MINUTE, date.getMinute());
             calendar.set(Calendar.SECOND, 0);
-            
+
             notificationService.setDailyNotification(calendar);
+        });
+
+        view.findViewById(R.id.cancelAlarm).setOnClickListener(v -> {
+            notificationService.cancelDailyNotification();
         });
 
         return view;

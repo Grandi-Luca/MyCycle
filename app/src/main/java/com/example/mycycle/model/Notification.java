@@ -4,4 +4,6 @@ import java.util.Calendar;
 
 public interface Notification {
     void setNotification(Calendar calendar);
+
+    void cancelNotification(int notificationID);
 }

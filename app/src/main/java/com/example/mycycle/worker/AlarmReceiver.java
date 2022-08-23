@@ -40,6 +40,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         calendar.set(Calendar.HOUR_OF_DAY, intent.getIntExtra(HOUR, Calendar.getInstance().get(Calendar.HOUR_OF_DAY)));
         calendar.set(Calendar.MINUTE, intent.getIntExtra(MINUTE, Calendar.getInstance().get(Calendar.MINUTE)));
         calendar.set(Calendar.SECOND, 0);
+
         Notification service = new NotificationService(context);
         service.setNotification(calendar);
 
