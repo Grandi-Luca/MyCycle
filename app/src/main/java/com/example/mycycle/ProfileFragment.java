@@ -3,38 +3,26 @@ package com.example.mycycle;
 import static com.example.mycycle.Utils.isUserLogin;
 
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.fragment.app.Fragment;
-
-import android.os.SystemClock;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextClock;
 import android.widget.TextView;
 
-import com.example.mycycle.model.DailyNotification;
+import androidx.annotation.RequiresApi;
+import androidx.fragment.app.Fragment;
+
 import com.example.mycycle.model.NotificationService;
-import com.example.mycycle.worker.AlarmReceiver;
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Objects;
 
 public class ProfileFragment extends Fragment {
 
@@ -57,7 +45,7 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        DailyNotification notificationService = new NotificationService(requireContext());
+        NotificationService notificationService = new NotificationService(requireContext());
 
         if(!isUserLogin()){
             Intent intent = new Intent(getActivity(), LoginUser.class);
@@ -83,11 +71,11 @@ public class ProfileFragment extends Fragment {
             int hour = date.getHour();
             int minute = date.getMinute();
 
-//            select time for the daily remainder
+            // select time for the daily remainder
             TimePickerDialog mTimePicker;
             mTimePicker = new TimePickerDialog(getActivity(),
                     (timePicker, selectedHour, selectedMinute) ->
-                            textView.setText(getHHmmInSystemFormat(selectedHour, selectedMinute, is24HourFormat)),
+                            textView.setText(Utils.getHHmmInSystemFormat(selectedHour, selectedMinute, is24HourFormat)),
                     hour, minute, is24HourFormat);
             mTimePicker.setTitle("Select Time");
             mTimePicker.show();
@@ -119,34 +107,30 @@ public class ProfileFragment extends Fragment {
             calendar.set(Calendar.MINUTE, date.getMinute());
             calendar.set(Calendar.SECOND, 0);
 
-            notificationService.setDailyNotification(calendar);
+            notificationService.setMedicineDailyNotification(calendar);
         });
 
         view.findViewById(R.id.cancelAlarm).setOnClickListener(v -> {
-            notificationService.cancelDailyNotification();
+            notificationService.cancelMedicineDailyNotification();
+        });
+
+        view.findViewById(R.id.setAlarmMenstruationButton).setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+
+            calendar.set(Calendar.MONTH, 7);
+            calendar.set(Calendar.DAY_OF_MONTH, 23);
+            calendar.set(Calendar.HOUR_OF_DAY, 9);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+
+            notificationService.setMenstruationNotification(calendar);
+        });
+
+        view.findViewById(R.id.cancelMenstruationAlarm).setOnClickListener(v -> {
+            notificationService.cancelMenstruationNotification();
         });
 
         return view;
     }
 
-    @SuppressLint("SimpleDateFormat")
-    @NonNull
-    private String getHHmmInSystemFormat(int hour, int minute, boolean is24HourFormat) {
-        String date;
-        if(hour < 10) {
-            if(minute < 10) {
-                date = "0" + hour + ":" + "0" + minute;
-            } else {
-                date = "0" + hour + ":" + minute;
-            }
-        } else {
-            if(minute < 10) {
-                date = hour + ":" + "0" + minute;
-            } else {
-                date = hour + ":" + minute;
-            }
-        }
-        return is24HourFormat ? date :
-                LocalTime.parse(date).format(DateTimeFormatter.ofPattern("hh:mm a"));
-    }
 }

@@ -46,7 +46,6 @@ public class ForumFragment extends Fragment {
     private QuestionAdapter adapter;
     private DAOPost dao;
     private SwipeRefreshLayout swipeRefreshLayout;
-    private static int i = 0;
 
     public ForumFragment() {
         // Required empty public constructor
@@ -103,7 +102,7 @@ public class ForumFragment extends Fragment {
         });
 
 
-//        TODO: insert new fragment to create a new post
+//      insert new fragment to create a new post
         view.findViewById(R.id.addFab).setOnClickListener(v ->
                 showDialog());
     }
@@ -163,7 +162,6 @@ public class ForumFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 swipeRefreshLayout.setRefreshing(false);
-                throw error.toException();
             }
         });
     }

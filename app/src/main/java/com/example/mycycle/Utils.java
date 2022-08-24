@@ -2,6 +2,9 @@ package com.example.mycycle;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,25 +14,23 @@ public class Utils {
         return FirebaseAuth.getInstance().getCurrentUser() != null;
     }
 
-    public static final int MAX_NUMBER_OF_LOAD_CARD = 8;
-
-    public static <T> List<T> removeDuplicates(List<T> list) {
-
-        // Create a new ArrayList
-        ArrayList<T> newList = new ArrayList<T>();
-
-        // Traverse through the first list
-        for (T element : list) {
-
-            // If this element is not present in newList
-            // then add it
-            if (!newList.contains(element)) {
-
-                newList.add(element);
+    public static String getHHmmInSystemFormat(int hour, int minute, boolean is24HourFormat) {
+        String date;
+        if (hour < 10) {
+            if (minute < 10) {
+                date = "0" + hour + ":" + "0" + minute;
+            } else {
+                date = "0" + hour + ":" + minute;
+            }
+        } else {
+            if (minute < 10) {
+                date = hour + ":" + "0" + minute;
+            } else {
+                date = hour + ":" + minute;
             }
         }
-
-        // return the new list
-        return newList;
+        return is24HourFormat ? date :
+                LocalTime.parse(date).format(DateTimeFormatter.ofPattern("hh:mm a"));
     }
+
 }

@@ -6,6 +6,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
@@ -15,19 +16,27 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextClock;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.mycycle.model.NotificationService;
 import com.example.mycycle.model.User;
+import com.example.mycycle.worker.AlarmReceiver;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Objects;
 
@@ -35,8 +44,10 @@ public class RegisterUser extends AppCompatActivity {
 
     private DatePickerDialog picker;
     private Uri uriProfileImage;
-    private EditText eText, editPassword, editConfirmPassword, editEmail, editNickName, editDurationPeriod, editDurationMenstruation;
-    private TextClock textClock;
+    private EditText eLastTime, editPassword, editConfirmPassword, editEmail, editNickName, editDurationPeriod, editDurationMenstruation;
+    private TextView textClock;
+    private TextClock clock;
+    private CheckBox pill;
 
     private FirebaseAuth mAuth;
 
@@ -52,6 +63,7 @@ public class RegisterUser extends AppCompatActivity {
                 }
             });
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,7 +75,8 @@ public class RegisterUser extends AppCompatActivity {
 
     }
 
-    @SuppressLint("DefaultLocale")
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @SuppressLint({"DefaultLocale", "CutPasteId"})
     private void initActivity(){
 
         this.editNickName = findViewById(R.id.nickname);
@@ -73,19 +86,20 @@ public class RegisterUser extends AppCompatActivity {
         this.editDurationPeriod = findViewById(R.id.duration_period);
         this.editDurationMenstruation = findViewById(R.id.duration_menstruation);
         this.textClock = findViewById(R.id.textClock);
+        this.pill = findViewById(R.id.pill);
 
         this.uriProfileImage = Uri.parse("android.resource://com.example.mycycle/" + R.drawable.default_profile_image);
 
-        eText = findViewById(R.id.editText1);
-        eText.setInputType(InputType.TYPE_NULL);
-        eText.setOnClickListener((View v)-> {
+        eLastTime = findViewById(R.id.editText1);
+        eLastTime.setInputType(InputType.TYPE_NULL);
+        eLastTime.setOnClickListener((View v)-> {
             final Calendar cldr = Calendar.getInstance();
             int day = cldr.get(Calendar.DAY_OF_MONTH);
             int month = cldr.get(Calendar.MONTH);
             int year = cldr.get(Calendar.YEAR);
             // date picker dialog
             picker = new DatePickerDialog(RegisterUser.this,
-                    (view, year1, monthOfYear, dayOfMonth) -> eText.setText(String.format("%d/%d/%d", dayOfMonth, monthOfYear + 1, year1)), year, month, day);
+                    (view, year1, monthOfYear, dayOfMonth) -> eLastTime.setText(String.format("%d/%d/%d", dayOfMonth, monthOfYear + 1, year1)), year, month, day);
             picker.show();
         });
 
@@ -98,29 +112,43 @@ public class RegisterUser extends AppCompatActivity {
         findViewById(R.id.register).setOnClickListener(view -> registerUser());
 
 
-        findViewById(R.id.pill).setOnClickListener(v->{
-            CheckBox checkBox = findViewById(R.id.pill);
-            if(checkBox.isChecked()){
-                findViewById(R.id.setAlarmContainer).setVisibility(View.VISIBLE);
-            } else {
-                findViewById(R.id.setAlarmContainer).setVisibility(View.GONE);
-            }
+        pill.setOnClickListener(v->{
+            findViewById(R.id.setAlarmContainer)
+                    .setVisibility(pill.isChecked()
+                            ? View.VISIBLE
+                            : View.GONE);
         });
 
+        clock = new TextClock(this);
+        textClock.setText(LocalTime.now().format(clock.is24HourModeEnabled() ?
+                DateTimeFormatter.ofPattern("HH:mm") :
+                DateTimeFormatter.ofPattern("hh:mm a")
+        ));
         textClock.setOnClickListener(v -> {
-            Calendar mCurrentTime = Calendar.getInstance();
-            int hour = mCurrentTime.get(Calendar.HOUR_OF_DAY);
-            int minute = mCurrentTime.get(Calendar.MINUTE);
+            boolean is24HourFormat = clock.is24HourModeEnabled();
+
+//          get the alarm time and parse it to a LocalTime for extract hour and minute
+            var format = is24HourFormat
+                    ? DateTimeFormatter.ofPattern("HH:mm")
+                    : DateTimeFormatter.ofPattern("hh:mm a");
+            var date = LocalTime.parse(textClock.getText(), format);
+            int hour = date.getHour();
+            int minute = date.getMinute();
+
+//          select time for the daily remainder
             TimePickerDialog mTimePicker;
-            mTimePicker = new TimePickerDialog(RegisterUser.this, (timePicker, selectedHour, selectedMinute) ->
-                    textClock.setText(getHHmmInSystemFormat(selectedHour, selectedMinute)),
-                    hour, minute, textClock.is24HourModeEnabled());
+            mTimePicker = new TimePickerDialog(this,
+                    (timePicker, selectedHour, selectedMinute) ->
+                            textClock.setText(Utils.getHHmmInSystemFormat(selectedHour, selectedMinute, is24HourFormat)),
+                    hour, minute, is24HourFormat);
             mTimePicker.setTitle("Select Time");
             mTimePicker.show();
         });
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @SuppressLint("SimpleDateFormat")
     private void registerUser() {
         String nickname = this.editNickName.getText().toString();
         String email = this.editEmail.getText().toString().trim();
@@ -128,7 +156,7 @@ public class RegisterUser extends AppCompatActivity {
         String confirmPassword = this.editConfirmPassword.getText().toString().trim();
         String durationPeriod = this.editDurationPeriod.getText().toString().trim();
         String durationMenstruation = this.editDurationMenstruation.getText().toString().trim();
-        String firstDay = this.eText.getText().toString().trim();
+        String firstDay = this.eLastTime.getText().toString().trim();
 
         if(this.isEmpty(nickname.trim(), this.editNickName, "nickname")
                 || this.isEmpty(email, editEmail, "email")
@@ -136,7 +164,7 @@ public class RegisterUser extends AppCompatActivity {
                 || this.isEmpty(confirmPassword, this.editConfirmPassword, "confirm password")
                 || this.isEmpty(durationPeriod, this.editDurationPeriod, "duration period")
                 || this.isEmpty(durationMenstruation, this.editDurationMenstruation,"duration menstruation")
-                || this.isEmpty(firstDay, this.eText, "first day of the last period")){
+                || this.isEmpty(firstDay, this.eLastTime, "first day of the last period")){
             return;
         }
 
@@ -169,42 +197,73 @@ public class RegisterUser extends AppCompatActivity {
                 .addOnCompleteListener(registerAuth -> {
                     if(registerAuth.isSuccessful()){
 
-//                      create user
+                        // create user
                         User user = new User()
                                 .setNickname(nickname)
                                 .setFirstDay(firstDay)
-                                .setDurationPeriod(durationPeriod)
-                                .setDurationMenstruation(durationMenstruation)
+                                .setDurationPeriod(Integer.parseInt(durationPeriod))
+                                .setDurationMenstruation(Integer.parseInt(durationMenstruation))
                                 .setProfilePicture(" ");
 
                         var uReference =  FirebaseDatabase.getInstance("https://auth-89f75-default-rtdb.europe-west1.firebasedatabase.app")
                                 .getReference("users").child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid());
 
-//                      insert user on database
+                        // insert user on database
                         uReference.setValue(user).addOnCompleteListener(register -> {
-                                    if(register.isSuccessful()){
-                                        Toast.makeText(RegisterUser.this, "User has been registered successfully", Toast.LENGTH_LONG).show();
-                                        Intent intent = new Intent(RegisterUser.this, MainActivity.class);
-                                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        startActivity(intent);
+                            if(register.isSuccessful()){
+                                Toast.makeText(RegisterUser.this, "User has been registered successfully", Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(RegisterUser.this, MainActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
 
-                                        var storageReference = FirebaseStorage.getInstance("gs://auth-89f75.appspot.com")
-                                                .getReference().child(Objects.requireNonNull(uReference.getKey()));
+                                AlarmReceiver.menstruationPeriod = user.getDurationPeriod();
 
-//                                      insert profile picture on database storage
-                                        storageReference.putFile(uriProfileImage).addOnSuccessListener(taskSnapshot -> {
-                                            taskSnapshot.getMetadata();
-                                            Task<Uri> downloadUrl = storageReference.getDownloadUrl();
-//                                          link profile picture database storage - database
-                                            downloadUrl.addOnSuccessListener(uri -> uReference.child("profilePicture").setValue(uri.toString()));
-                                        });
+                                var storageReference = FirebaseStorage.getInstance("gs://auth-89f75.appspot.com")
+                                        .getReference().child(Objects.requireNonNull(uReference.getKey()));
 
-//                                        TODO: add Alarm manager to create a daily remainder
-
-                                    } else {
-                                        Toast.makeText(RegisterUser.this, "Failed to register! Try again", Toast.LENGTH_LONG).show();
-                                    }
+                                // insert profile picture on database storage
+                                storageReference.putFile(uriProfileImage).addOnSuccessListener(taskSnapshot -> {
+                                    taskSnapshot.getMetadata();
+                                    Task<Uri> downloadUrl = storageReference.getDownloadUrl();
+                                    // link profile picture database storage - database
+                                    downloadUrl.addOnSuccessListener(uri -> uReference.child("profilePicture").setValue(uri.toString()));
                                 });
+
+                                var notificationService = new NotificationService(this);
+                                Calendar calendar = Calendar.getInstance();
+                                // add Alarm manager to create a daily remainder
+                                if(pill.isChecked()) {
+                                    CharSequence time;
+
+                                    // get the time as a string using a specified format
+                                    if (!clock.is24HourModeEnabled()) {
+                                        time = CalendarUtils.formattedTime(textClock.getText().toString(),
+                                                new SimpleDateFormat("hh:mm aa"),
+                                                new SimpleDateFormat("HH:mm"));
+                                    } else {
+                                        time = textClock.getText().toString();
+                                    }
+                                    var date = LocalTime.parse(time);
+
+                                    calendar.set(Calendar.HOUR_OF_DAY, date.getHour());
+                                    calendar.set(Calendar.MINUTE, date.getMinute());
+                                    calendar.set(Calendar.SECOND, 0);
+
+                                    notificationService.setMedicineDailyNotification(calendar);
+                                }
+
+                                var date = LocalDate.parse(eLastTime.getText().toString());
+                                calendar.set(Calendar.MONTH, date.getMonthValue());
+                                calendar.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
+                                calendar.set(Calendar.HOUR_OF_DAY, 9);
+                                calendar.set(Calendar.MINUTE, 0);
+                                calendar.set(Calendar.SECOND, 0);
+                                notificationService.setMenstruationNotification(calendar);
+
+                            } else {
+                                Toast.makeText(RegisterUser.this, "Failed to register! Try again", Toast.LENGTH_LONG).show();
+                            }
+                        });
                     } else {
                         Toast.makeText(RegisterUser.this, "Failed to register! Try again", Toast.LENGTH_LONG).show();
                     }
@@ -218,30 +277,5 @@ public class RegisterUser extends AppCompatActivity {
             return true;
         }
         return false;
-    }
-
-    @NonNull
-    private String getHHmmInSystemFormat(int hour, int minute){
-        String formattedTime;
-
-        if(!textClock.is24HourModeEnabled()) {
-            if(hour == 0) {
-                formattedTime = (minute < 10) ?
-                        12 + ":" + 0 + minute + " am" : 12 + ":" + minute + " am";
-            } else if(hour > 12) {
-                formattedTime = (minute < 10) ?
-                        (hour - 12) + ":" + 0 + minute + " pm" : (hour - 12) + ":" + minute + " pm";
-            } else if(hour == 12) {
-                formattedTime = (minute < 10) ?
-                        hour + ":" + 0 + minute + " pm" : hour + ":" + minute + " pm";
-            } else {
-                formattedTime = (minute < 10) ?
-                        hour + ":" + 0 + minute + " am" : hour + ":" + minute + " am";
-            }
-        } else {
-            formattedTime = hour + ":" + minute;
-        }
-
-        return formattedTime;
     }
 }

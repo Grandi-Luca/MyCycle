@@ -2,7 +2,8 @@ package com.example.mycycle.model;
 
 public class User {
 
-    private String nickname, durationPeriod, durationMenstruation, firstDay, reminder, profilePicture, userID;
+    private String nickname, firstDay, reminder, profilePicture, userID;
+    private int durationPeriod, durationMenstruation;
     private boolean pill;
 
     public User() {
@@ -26,20 +27,20 @@ public class User {
         return this;
     }
 
-    public String getDurationPeriod() {
+    public int getDurationPeriod() {
         return durationPeriod;
     }
 
-    public User setDurationPeriod(String durationPeriod) {
+    public User setDurationPeriod(int durationPeriod) {
         this.durationPeriod = durationPeriod;
         return this;
     }
 
-    public String getDurationMenstruation() {
+    public int getDurationMenstruation() {
         return durationMenstruation;
     }
 
-    public User setDurationMenstruation(String durationMenstruation) {
+    public User setDurationMenstruation(int durationMenstruation) {
         this.durationMenstruation = durationMenstruation;
         return this;
     }
