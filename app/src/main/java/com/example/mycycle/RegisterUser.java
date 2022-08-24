@@ -219,46 +219,50 @@ public class RegisterUser extends AppCompatActivity {
                                 AlarmReceiver.menstruationPeriod = user.getDurationPeriod();
 
                                 var storageReference = FirebaseStorage.getInstance("gs://auth-89f75.appspot.com")
-                                        .getReference().child(Objects.requireNonNull(uReference.getKey()));
+                                        .getReference().child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
+                                System.err.println(storageReference.getPath());
                                 // insert profile picture on database storage
                                 storageReference.putFile(uriProfileImage).addOnSuccessListener(taskSnapshot -> {
                                     taskSnapshot.getMetadata();
                                     Task<Uri> downloadUrl = storageReference.getDownloadUrl();
                                     // link profile picture database storage - database
-                                    downloadUrl.addOnSuccessListener(uri -> uReference.child("profilePicture").setValue(uri.toString()));
+                                    downloadUrl.addOnSuccessListener(uri -> {
+                                        uReference.child("profilePicture").setValue(uri.toString());
+
+                                        var notificationService = new NotificationService(this);
+                                        Calendar calendar = Calendar.getInstance();
+                                        // add Alarm manager to create a daily remainder
+                                        if(pill.isChecked()) {
+                                            CharSequence time;
+
+                                            // get the time as a string using a specified format
+                                            if (!clock.is24HourModeEnabled()) {
+                                                time = CalendarUtils.formattedTime(textClock.getText().toString(),
+                                                        new SimpleDateFormat("hh:mm aa"),
+                                                        new SimpleDateFormat("HH:mm"));
+                                            } else {
+                                                time = textClock.getText().toString();
+                                            }
+                                            var date = LocalTime.parse(time);
+
+                                            calendar.set(Calendar.HOUR_OF_DAY, date.getHour());
+                                            calendar.set(Calendar.MINUTE, date.getMinute());
+                                            calendar.set(Calendar.SECOND, 0);
+
+                                            notificationService.setMedicineDailyNotification(calendar);
+                                        }
+
+                                        var date = LocalDate.parse(eLastTime.getText().toString(),
+                                                DateTimeFormatter.ofPattern("d/MM/yyyy"));
+                                        calendar.set(Calendar.MONTH, date.getMonthValue());
+                                        calendar.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
+                                        calendar.set(Calendar.HOUR_OF_DAY, 9);
+                                        calendar.set(Calendar.MINUTE, 0);
+                                        calendar.set(Calendar.SECOND, 0);
+                                        notificationService.setMenstruationNotification(calendar);
+                                    });
                                 });
-
-                                var notificationService = new NotificationService(this);
-                                Calendar calendar = Calendar.getInstance();
-                                // add Alarm manager to create a daily remainder
-                                if(pill.isChecked()) {
-                                    CharSequence time;
-
-                                    // get the time as a string using a specified format
-                                    if (!clock.is24HourModeEnabled()) {
-                                        time = CalendarUtils.formattedTime(textClock.getText().toString(),
-                                                new SimpleDateFormat("hh:mm aa"),
-                                                new SimpleDateFormat("HH:mm"));
-                                    } else {
-                                        time = textClock.getText().toString();
-                                    }
-                                    var date = LocalTime.parse(time);
-
-                                    calendar.set(Calendar.HOUR_OF_DAY, date.getHour());
-                                    calendar.set(Calendar.MINUTE, date.getMinute());
-                                    calendar.set(Calendar.SECOND, 0);
-
-                                    notificationService.setMedicineDailyNotification(calendar);
-                                }
-
-                                var date = LocalDate.parse(eLastTime.getText().toString());
-                                calendar.set(Calendar.MONTH, date.getMonthValue());
-                                calendar.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
-                                calendar.set(Calendar.HOUR_OF_DAY, 9);
-                                calendar.set(Calendar.MINUTE, 0);
-                                calendar.set(Calendar.SECOND, 0);
-                                notificationService.setMenstruationNotification(calendar);
 
                             } else {
                                 Toast.makeText(RegisterUser.this, "Failed to register! Try again", Toast.LENGTH_LONG).show();
