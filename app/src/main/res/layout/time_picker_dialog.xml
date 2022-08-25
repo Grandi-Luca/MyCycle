@@ -14,60 +14,46 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHeight_percent=".5">
 
-        <EditText
-            android:id="@+id/title"
+        <TimePicker
+            android:id="@+id/material_timepicker_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Title"
-            android:inputType="text"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.2" />
-
-        <EditText
-            android:id="@+id/questionDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="description"
             android:layout_marginTop="40dp"
+            android:foregroundTint="@color/primary_dark"
+            android:timePickerMode="spinner"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.4"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/title"
-            android:inputType="text" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.flexbox.FlexboxLayout
             android:id="@+id/flexboxLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="72dp"
+            android:layout_marginTop="28dp"
             app:flexWrap="wrap"
-            app:justifyContent="flex_end"
+            app:justifyContent="center"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.4"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/questionDescription">
+            app:layout_constraintTop_toBottomOf="@+id/material_timepicker_view">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/addNewPost"
+                android:id="@+id/setAlarm"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="30dp"
+                android:layout_marginEnd="40dp"
                 android:backgroundTint="@color/primary"
-                android:text="@string/add"
+                android:text="@string/set_text_button"
                 android:textColor="@color/white"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 app:cornerRadius="10dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/closeButton"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/white"
                 android:text="@string/cancel"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:textColor="@color/primary" />
 
         </com.google.android.flexbox.FlexboxLayout>

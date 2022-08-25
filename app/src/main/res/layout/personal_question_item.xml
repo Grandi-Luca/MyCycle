@@ -75,34 +75,7 @@
                 android:layout_height="wrap_content"
                 app:strokeWidth="1dp"
                 app:strokeColor="@color/item_disabled"
-                app:cardCornerRadius="5dp">
-
-                <com.google.android.flexbox.FlexboxLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:flexWrap="wrap"
-                    app:justifyContent="flex_end"
-                    android:paddingHorizontal="10dp"
-                    android:paddingTop="10dp">
-
-                    <EditText
-                        android:id="@+id/newReplyText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:importantForAutofill="no"
-                        android:inputType="text"
-                        android:layout_marginBottom="5dp"/>
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/addNewReply"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:backgroundTint="@color/primary_dark"
-                        android:text="@string/add" />
-
-                </com.google.android.flexbox.FlexboxLayout>
-
-            </com.google.android.material.card.MaterialCardView>
+                app:cardCornerRadius="5dp"/>
 
         </LinearLayout>
 

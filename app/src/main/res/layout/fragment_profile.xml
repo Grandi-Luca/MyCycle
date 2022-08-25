@@ -4,111 +4,311 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
     tools:context=".ProfileFragment">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/reminder"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/logout">
-
-        <TextView
-            android:id="@+id/textView3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="medicine alarm"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/textClock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            app:layout_constraintHorizontal_bias="0.498"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/setAlarmButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="set alarm"
-            android:layout_marginTop="30dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textClock" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/cancelAlarm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:layout_marginEnd="4dp"
-            android:text="cancel alarm"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textClock" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/menstruationReminder"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="68dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/reminder">
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="menstruation alarm"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/setAlarmMenstruationButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="set alarm"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView2" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/cancelMenstruationAlarm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-
-            android:text="cancel alarm"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <Button
-        android:id="@+id/logout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#AD2BC3"
-        android:text="@string/button"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="match_parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.04" />
+        android:layout_marginTop="20dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/userInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <com.google.android.flexbox.FlexboxLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:alignItems="center"
+                    app:flexWrap="wrap"
+                    android:padding="10dp"
+                    android:background="@color/white">
+
+                    <ImageView
+                        android:id="@+id/profileImage"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:layout_marginEnd="20dp"
+                        android:src="@drawable/default_profile_image" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/nickname"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="15dp"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/black"/>
+
+                        <TextView
+                            android:id="@+id/email"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+                </com.google.android.flexbox.FlexboxLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/linearLayout3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                app:flexDirection="column"
+                app:showDivider="middle"
+                app:dividerDrawable="@drawable/divider_20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/userInfo">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/userInfo">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Info personali"
+                        android:paddingVertical="2dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:textSize="20sp"/>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="5dp">
+
+                        <LinearLayout
+                            android:paddingHorizontal="10dp"
+                            android:background="@color/white"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <com.google.android.flexbox.FlexboxLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="10dp"
+                                app:justifyContent="space_between"
+                                app:alignItems="baseline">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Durata Mestruazioni"
+                                    android:textSize="18sp"/>
+
+                                <TextView
+                                    android:id="@+id/menstruationDuration"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textSize="18sp"
+                                    android:text="0 giorni"/>
+
+                            </com.google.android.flexbox.FlexboxLayout>
+
+                            <com.google.android.flexbox.FlexboxLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                app:justifyContent="space_between"
+                                app:alignItems="baseline"
+                                android:paddingVertical="10dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center_vertical"
+                                    android:text="Durata Ciclo"
+                                    android:textSize="18sp"/>
+
+                                <TextView
+                                    android:id="@+id/duration_period"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="0 giorni"
+                                    android:textSize="18sp"/>
+
+                            </com.google.android.flexbox.FlexboxLayout>
+
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Promemoria"
+                        android:paddingVertical="2dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"
+                        android:textSize="20sp"/>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="5dp">
+
+                        <LinearLayout
+                            android:paddingHorizontal="10dp"
+                            android:background="@color/white"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="5dp"
+                                android:orientation="horizontal">
+
+                                <com.google.android.material.card.MaterialCardView
+                                    android:id="@+id/medicineReminder"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:background="@color/white"
+                                    android:outlineSpotShadowColor="@color/white"
+                                    android:layout_weight="1"
+                                    android:layout_gravity="center_vertical">
+
+                                    <TextView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:text="Medicine Daily Reminder"
+                                        android:textSize="18sp"
+                                        />
+
+                                </com.google.android.material.card.MaterialCardView>
+
+                                <View
+                                    android:layout_width="2dp"
+                                    android:layout_height="18sp"
+                                    android:layout_gravity="center_vertical"
+                                    android:background="?android:attr/listDivider"
+                                    android:backgroundTint="@color/gray"
+                                    android:foreground="@color/gray"
+                                    />
+
+                                <com.google.android.material.switchmaterial.SwitchMaterial
+                                    android:id="@+id/medicineReminderSwitch"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:gravity="center_vertical"
+                                    app:thumbTint="@color/switch_thumb_selector"
+                                    app:trackTint="@color/switch_track_selector" />
+
+                            </LinearLayout>
+
+                            <com.google.android.flexbox.FlexboxLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="5dp"
+                                app:alignItems="center"
+                                app:justifyContent="space_between">
+
+                                <TextView
+                                    android:id="@+id/menstruationReminderText"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Menstruation Reminder"
+                                    android:textSize="18sp" />
+
+                                <com.google.android.material.switchmaterial.SwitchMaterial
+                                    android:id="@+id/menstruationReminderSwitch"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    app:thumbTint="@color/switch_thumb_selector"
+                                    app:trackTint="@color/switch_track_selector" />
+
+                            </com.google.android.flexbox.FlexboxLayout>
+
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/personalPosts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:cardCornerRadius="5dp"
+                    android:layout_marginTop="10dp">
+
+                    <com.google.android.flexbox.FlexboxLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:justifyContent="space_between"
+                        app:alignItems="center"
+                        android:padding="10dp">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Post Personali"
+                            android:textSize="18sp"
+                            android:textAlignment="textStart"
+                            />
+
+                        <ImageView
+                            android:layout_width="50dp"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_baseline_arrow_right_24"
+                            app:tint="@color/primary_dark"
+                            android:scaleType="fitXY"
+                            />
+
+                    </com.google.android.flexbox.FlexboxLayout>
+
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </com.google.android.flexbox.FlexboxLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/logout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="@color/primary"
+                android:text="@string/button"
+                android:layout_marginTop="40dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.core.widget.NestedScrollView>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

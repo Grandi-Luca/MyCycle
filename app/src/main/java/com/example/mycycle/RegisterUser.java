@@ -84,7 +84,7 @@ public class RegisterUser extends AppCompatActivity {
         this.editPassword = findViewById(R.id.password);
         this.editConfirmPassword = findViewById(R.id.confirm_password);
         this.editDurationPeriod = findViewById(R.id.duration_period);
-        this.editDurationMenstruation = findViewById(R.id.duration_menstruation);
+        this.editDurationMenstruation = findViewById(R.id.menstruationDuration);
         this.textClock = findViewById(R.id.textClock);
         this.pill = findViewById(R.id.pill);
 

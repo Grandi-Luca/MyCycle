@@ -12,6 +12,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.mycycle.R;
 import com.example.mycycle.model.NotificationService;
+import com.example.mycycle.model.NotificationServiceInterface;
 
 import java.util.Calendar;
 
@@ -34,7 +35,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         int notificationID = intent.getIntExtra(NOTIFICATION_ID, -1);
         var manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        com.example.mycycle.model.Notification service = new NotificationService(context);
+        NotificationService service = new NotificationService(context);
         Calendar calendar = Calendar.getInstance();
         Notification notification;
 

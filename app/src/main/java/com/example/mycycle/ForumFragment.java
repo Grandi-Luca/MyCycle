@@ -11,12 +11,9 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,22 +21,17 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.mycycle.model.QuestionItem;
 import com.example.mycycle.model.ReplyItem;
-import com.example.mycycle.model.User;
 import com.example.mycycle.adapter.QuestionAdapter;
+import com.example.mycycle.model.User;
 import com.example.mycycle.repo.DAOPost;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
-import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEventListener;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Objects;
 
 public class ForumFragment extends Fragment {
 
@@ -63,7 +55,7 @@ public class ForumFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_forum, container, false);
 
-        this.adapter = new QuestionAdapter(getActivity());
+        this.adapter = new QuestionAdapter(getActivity(), R.layout.question_item);
         this.dao = new DAOPost();
         KeyboardVisibilityEvent.setEventListener(
                 getActivity(),
@@ -93,12 +85,9 @@ public class ForumFragment extends Fragment {
 
         loadData();
 
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                loadData();
-                swipeRefreshLayout.setRefreshing(false);
-            }
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            loadData();
+            swipeRefreshLayout.setRefreshing(false);
         });
 
 
@@ -164,6 +153,7 @@ public class ForumFragment extends Fragment {
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+        swipeRefreshLayout.setRefreshing(false);
     }
 
     private void showDialog() {
@@ -171,11 +161,11 @@ public class ForumFragment extends Fragment {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(false);
         dialog.setContentView(R.layout.add_new_post_dialog);
-        dialog.getWindow().getAttributes().windowAnimations = R.style.dialog_animation;
+        dialog.getWindow().getAttributes().windowAnimations = R.style.dialog_vertical_swipe_animation;
         dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        var btn_cancel = dialog.findViewById(R.id.cancelButton);
+        var btn_cancel = dialog.findViewById(R.id.closeButton);
         dialog.getWindow().setGravity(Gravity.BOTTOM);
         btn_cancel.setOnClickListener(v -> dialog.dismiss());
         dialog.show();

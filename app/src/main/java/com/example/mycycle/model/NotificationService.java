@@ -22,10 +22,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Objects;
 
-public class NotificationService implements Notification, MedicineNotification {
+public class NotificationService implements NotificationServiceInterface, RemindersInterface {
 
     private final Context context;
 
@@ -34,10 +33,10 @@ public class NotificationService implements Notification, MedicineNotification {
         this.context = context;
         createNotificationChannel(AlarmReceiver.MEDICINE_CHANNEL_ID,
                 "Medicine notification",
-                "Notification to reminder the user to take his medicine");
+                "NotificationServiceInterface to reminder the user to take his medicine");
         createNotificationChannel(AlarmReceiver.MENSTRUATION_CHANNEL_ID,
                 "Menstruation notification",
-                "Notification to reminder the user when menstruation is arrive");
+                "NotificationServiceInterface to reminder the user when menstruation is arrive");
     }
 
     public void setMedicineDailyNotification(Calendar calendar) {
@@ -79,6 +78,7 @@ public class NotificationService implements Notification, MedicineNotification {
 
         if (pendingIntent != null && alarmManager != null) {
             alarmManager.cancel(pendingIntent);
+            pendingIntent.cancel();
         }
     }
 
@@ -145,9 +145,26 @@ public class NotificationService implements Notification, MedicineNotification {
     }
 
     @Override
+    public boolean isMenstruationReminderActive() {
+        return isReminderActive(AlarmReceiver.MENSTRUATION_NOTIFICATION_ID);
+    }
+
+    @Override
+    public boolean isReminderActive(int reminderID) {
+        return (PendingIntent.getBroadcast(context, reminderID,
+                new Intent(context, AlarmReceiver.class),
+                PendingIntent.FLAG_IMMUTABLE|PendingIntent.FLAG_NO_CREATE) != null);
+    }
+
+    @Override
     public void cancelMedicineDailyNotification() {
         cancelNotification(AlarmReceiver.MEDICINE_NOTIFICATION_ID);
         showAlert("notifica giornaliera disabilitata");
+    }
+
+    @Override
+    public boolean isMedicineReminderActive() {
+        return isReminderActive(AlarmReceiver.MEDICINE_NOTIFICATION_ID);
     }
 
     private PendingIntent getPendingIntent(Intent intent, int id) {

@@ -39,13 +39,16 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
     private final Context context;
     private final List<QuestionItem> questions;
     private final DAOPost dao;
-    private final RecyclerView.RecycledViewPool viewPool
-            = new RecyclerView.RecycledViewPool();
+    private final RecyclerView.RecycledViewPool viewPool = new RecyclerView.RecycledViewPool();
 
-    public QuestionAdapter(Context context) {
+    private int layout;
+
+    public QuestionAdapter(Context context, int layout) {
         this.context = context;
         this.questions = new ArrayList<>();
         this.dao = new DAOPost();
+
+        this.layout = layout;
     }
 
     public void addQuestion(QuestionItem item) {
@@ -70,7 +73,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
 
         View view = LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.question_item, parent, false);
+                .inflate(layout, parent, false);
 
         return new QuestionViewHolder(view);
     }
@@ -110,51 +113,52 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
                     : R.drawable.ic_baseline_arrow_drop_up_24);
         });
 
-        holder.addBtn.setOnClickListener(v -> {
-            if(holder.newReply.getText().toString().trim().isEmpty()) {
-                return;
-            }
-            FirebaseDatabase.getInstance("https://auth-89f75-default-rtdb.europe-west1.firebasedatabase.app/")
-                    .getReference("users")
-                    .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            var currentUser = snapshot.getValue(User.class);
-                            Objects.requireNonNull(currentUser)
-                                    .setUserID(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                            var reply = new ReplyItem()
-                                    .setUserID(currentUser.getUserID())
-                                    .setNickname(Objects.requireNonNull(currentUser).getNickname())
-                                    .setReply(holder.newReply.getText().toString())
-                                    .setTimestamp(-1 * new Date().getTime())
-                                    .setUri(currentUser.getProfilePicture());
+        if(layout == R.layout.question_item) {
+            holder.addBtn.setOnClickListener(v -> {
+                if (holder.newReply.getText().toString().trim().isEmpty()) {
+                    return;
+                }
+                FirebaseDatabase.getInstance("https://auth-89f75-default-rtdb.europe-west1.firebasedatabase.app/")
+                        .getReference("users")
+                        .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                var currentUser = snapshot.getValue(User.class);
+                                Objects.requireNonNull(currentUser)
+                                        .setUserID(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                                var reply = new ReplyItem()
+                                        .setUserID(currentUser.getUserID())
+                                        .setNickname(Objects.requireNonNull(currentUser).getNickname())
+                                        .setReply(holder.newReply.getText().toString())
+                                        .setTimestamp(-1 * new Date().getTime())
+                                        .setUri(currentUser.getProfilePicture());
 
-                            dao.addReply(question.getPostID(), reply).addOnCompleteListener(task -> {
-                                holder.newReply.setText("");
-                                if (task.isSuccessful()){
-                                    Toast.makeText(context,
-                                                    "post has been added successfully",
-                                                    Toast.LENGTH_SHORT)
-                                            .show();
-                                } else {
-                                    Toast.makeText(
-                                                    context,
-                                                    "Failed to submit new post! Try again",
-                                                    Toast.LENGTH_LONG)
-                                            .show();
-                                }
-                            });
-                        }
+                                dao.addReply(question.getPostID(), reply).addOnCompleteListener(task -> {
+                                    holder.newReply.setText("");
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(context,
+                                                        "post has been added successfully",
+                                                        Toast.LENGTH_SHORT)
+                                                .show();
+                                    } else {
+                                        Toast.makeText(
+                                                        context,
+                                                        "Failed to submit new post! Try again",
+                                                        Toast.LENGTH_LONG)
+                                                .show();
+                                    }
+                                });
+                            }
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
 
-                        }
-                    });
+                            }
+                        });
 
-        });
-
+            });
+        }
     }
 
     private void setArrowImage(QuestionViewHolder holder, boolean isExpand) {
