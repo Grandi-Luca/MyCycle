@@ -256,7 +256,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadData() {
-        this.dao.get(null).addValueEventListener(new ValueEventListener() {
+        this.dao.get().addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

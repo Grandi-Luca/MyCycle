@@ -63,7 +63,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         this.questions.clear();
     }
 
-    private List<QuestionItem> getQuestions() {
+    public List<QuestionItem> getQuestions() {
         return questions;
     }
 

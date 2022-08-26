@@ -58,7 +58,7 @@ public class DAOPost {
 
     // TODO: add remove/update post
 
-    public Query get(String key) {
+    public Query get() {
         return databaseReference.getReference("questions").orderByChild("timestamp");
     }
 
