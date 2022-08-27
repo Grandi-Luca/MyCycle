@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mycycle.adapter.CalendarAdapter;
 import com.example.mycycle.adapter.NoteAdapter;
-import com.example.mycycle.adapter.OnItemListener;
+import com.example.mycycle.adapter.CalendarAdapter.OnItemListener;
 import com.example.mycycle.model.Note;
 import com.example.mycycle.repo.NoteRepository;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -108,7 +108,7 @@ public class CalendarFragment extends Fragment implements OnItemListener {
                     R.layout.add_new_note_dialog,
                     R.style.dialog_vertical_swipe_animation);
 
-            dialog.findViewById(R.id.addNew).setOnClickListener(v1 -> {
+            dialog.findViewById(R.id.addButton).setOnClickListener(v1 -> {
                 TextView text = dialog.findViewById(R.id.description);
                 repository.insertNote(new Note()
                         .setNote(text.getText().toString())

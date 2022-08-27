@@ -20,7 +20,7 @@ import java.util.List;
 public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.ReplyViewHolder> {
 
     private final Context context;
-    private final List<ReplyItem> replies;
+    private List<ReplyItem> replies;
 
     public ReplyAdapter(Context context) {
         this.context = context;
@@ -28,7 +28,7 @@ public class ReplyAdapter extends RecyclerView.Adapter<ReplyAdapter.ReplyViewHol
     }
 
     public void setReplies(List<ReplyItem> replies) {
-        this.replies.addAll(replies);
+        this.replies = replies;
     }
 
     public void clearAll() {

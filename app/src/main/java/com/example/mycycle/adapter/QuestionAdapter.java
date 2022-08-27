@@ -9,46 +9,31 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.mycycle.R;
 import com.example.mycycle.model.QuestionItem;
-import com.example.mycycle.model.ReplyItem;
-import com.example.mycycle.model.User;
-import com.example.mycycle.repo.DAOPost;
 import com.google.android.material.button.MaterialButton;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 @SuppressWarnings("unused")
 public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.QuestionViewHolder> {
 
     private final Context context;
-    private final List<QuestionItem> questions;
-    private final DAOPost dao;
-    private final RecyclerView.RecycledViewPool viewPool = new RecyclerView.RecycledViewPool();
+    private final OnItemListener itemListener;
 
-    private int layout;
+    private List<QuestionItem> questions;
 
-    public QuestionAdapter(Context context, int layout) {
+    public QuestionAdapter(Context context, OnItemListener itemListener) {
         this.context = context;
         this.questions = new ArrayList<>();
-        this.dao = new DAOPost();
 
-        this.layout = layout;
+        this.itemListener = itemListener;
     }
 
     public void addQuestion(QuestionItem item) {
@@ -56,7 +41,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
     }
 
     public void setQuestions(List<QuestionItem> questions) {
-        this.questions.addAll(questions);
+        this.questions = questions;
     }
 
     public void clearAll(){
@@ -73,7 +58,7 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
 
         View view = LayoutInflater
                 .from(parent.getContext())
-                .inflate(layout, parent, false);
+                .inflate(R.layout.question_item, parent, false);
 
         return new QuestionViewHolder(view);
     }
@@ -84,18 +69,6 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         class for the given position */
         QuestionItem question = this.getQuestions().get(position);
 
-        LinearLayoutManager layoutManager
-                = new LinearLayoutManager(holder.replyRecyclerView.getContext(),
-                LinearLayoutManager.VERTICAL, false);
-
-        layoutManager.setInitialPrefetchItemCount(question.getQuestionReplies().size());
-        ReplyAdapter replyAdapter = new ReplyAdapter(context);
-        replyAdapter.setReplies(question.getQuestionReplies());
-        holder.replyRecyclerView.setLayoutManager(layoutManager);
-        holder.replyRecyclerView.setHasFixedSize(true);
-        holder.replyRecyclerView.setAdapter(replyAdapter);
-        holder.replyRecyclerView.setRecycledViewPool(viewPool);
-
         holder.title.setText(question.getQuestionTitle());
         holder.description.setText(question.getQuestionDescription());
         holder.nickname.setText(question.getNickname());
@@ -103,69 +76,8 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
                 .load(question.getUri())
                 .into(holder.profilePicture);
 
-        holder.expandLayout.setVisibility(View.GONE);
-
-        holder.arrow.setOnClickListener(v -> {
-            boolean isOpen = holder.expandLayout.getVisibility() == View.VISIBLE;
-            holder.expandLayout.setVisibility(isOpen ? View.GONE : View.VISIBLE);
-            holder.arrow.setImageResource(isOpen
-                    ? R.drawable.ic_baseline_arrow_drop_down_24
-                    : R.drawable.ic_baseline_arrow_drop_up_24);
-        });
-
-        if(layout == R.layout.question_item) {
-            holder.addBtn.setOnClickListener(v -> {
-                if (holder.newReply.getText().toString().trim().isEmpty()) {
-                    return;
-                }
-                FirebaseDatabase.getInstance("https://auth-89f75-default-rtdb.europe-west1.firebasedatabase.app/")
-                        .getReference("users")
-                        .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                var currentUser = snapshot.getValue(User.class);
-                                Objects.requireNonNull(currentUser)
-                                        .setUserID(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                                var reply = new ReplyItem()
-                                        .setUserID(currentUser.getUserID())
-                                        .setNickname(Objects.requireNonNull(currentUser).getNickname())
-                                        .setReply(holder.newReply.getText().toString())
-                                        .setTimestamp(-1 * new Date().getTime())
-                                        .setUri(currentUser.getProfilePicture());
-
-                                dao.addReply(question.getPostID(), reply).addOnCompleteListener(task -> {
-                                    holder.newReply.setText("");
-                                    if (task.isSuccessful()) {
-                                        Toast.makeText(context,
-                                                        "post has been added successfully",
-                                                        Toast.LENGTH_SHORT)
-                                                .show();
-                                    } else {
-                                        Toast.makeText(
-                                                        context,
-                                                        "Failed to submit new post! Try again",
-                                                        Toast.LENGTH_LONG)
-                                                .show();
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
-
-            });
-        }
+        holder.arrow.setOnClickListener(v -> itemListener.onItemClick(question));
     }
-
-//    private void setArrowImage(QuestionViewHolder holder, boolean isExpand) {
-//        holder.arrow.setImageResource(isExpand
-//                ? R.drawable.ic_baseline_arrow_drop_up_24
-//                : R.drawable.ic_baseline_arrow_drop_down_24);
-//    }
 
     @Override
     public int getItemCount() {
@@ -175,12 +87,8 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
     static class QuestionViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView title, description, nickname;
-        private final RecyclerView replyRecyclerView;
         private final ImageView profilePicture;
-        private final LinearLayout expandLayout;
         private final ImageButton arrow;
-        private final EditText newReply;
-        private final MaterialButton addBtn;
 
         public QuestionViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -190,10 +98,10 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
             title = itemView.findViewById(R.id.questionTitle);
             description = itemView.findViewById(R.id.questionDescription);
             arrow = itemView.findViewById(R.id.arrowReply);
-            expandLayout = itemView.findViewById(R.id.expandLayout);
-            replyRecyclerView = itemView.findViewById(R.id.replyList);
-            newReply = itemView.findViewById(R.id.newText);
-            addBtn = itemView.findViewById(R.id.addButton);
         }
+    }
+
+    public interface OnItemListener {
+        void onItemClick(QuestionItem item);
     }
 }

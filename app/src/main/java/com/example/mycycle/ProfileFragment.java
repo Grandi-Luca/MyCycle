@@ -16,7 +16,6 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,6 +24,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.example.mycycle.adapter.QuestionAdapter;
+import com.example.mycycle.adapter.ReplyAdapter;
 import com.example.mycycle.model.NotificationService;
 import com.example.mycycle.model.QuestionItem;
 import com.example.mycycle.model.RemindersInterface;
@@ -34,7 +34,6 @@ import com.example.mycycle.repo.DAOPost;
 import com.example.mycycle.repo.FirebaseDAOUser;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
@@ -45,19 +44,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemListener {
     FirebaseDAOUser daoUser;
     private DAOPost dao;
-    private QuestionAdapter adapter;
 
     RemindersInterface notificationService;
     SwitchMaterial medicineReminderSwitch;
 
-    TextView nickname, menstruationDuration, periodDuration;
-    ImageView profilePicture;
+    private TextView nickname, menstruationDuration, periodDuration;
+    private ImageView profilePicture;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private QuestionAdapter questionAdapter;
+    private ReplyAdapter replyAdapter;
 
-    private static User currentUser;
+    public static User currentUser;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -77,8 +77,9 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         daoUser = new FirebaseDAOUser();
+        this.questionAdapter = new QuestionAdapter(getActivity(), this);
+        this.replyAdapter = new ReplyAdapter(getActivity());
         this.dao = new DAOPost();
-        this.adapter = new QuestionAdapter(getActivity(), R.layout.personal_question_item);
 
         notificationService = new NotificationService(requireContext());
 
@@ -173,7 +174,7 @@ public class ProfileFragment extends Fragment {
         showDialog(dialog, R.layout.list_dialog, R.style.dialog_horizontal_swipe_animation);
 
         this.swipeRefreshLayout = dialog.findViewById(R.id.swipeLayout);
-        loadData();
+        reloadQuestions("");
 
         RecyclerView questionRecyclerView = dialog.findViewById(R.id.recyclerList);
         questionRecyclerView.setHasFixedSize(true);
@@ -181,11 +182,11 @@ public class ProfileFragment extends Fragment {
         /* Set the layout manager
         and adapter for items
         of the parent recyclerview */
-        questionRecyclerView.setAdapter(adapter);
+        questionRecyclerView.setAdapter(questionAdapter);
         questionRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            loadData();
+            reloadQuestions("");
             swipeRefreshLayout.setRefreshing(false);
         });
     }
@@ -236,61 +237,32 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    private void loadData() {
-        this.dao.get().addValueEventListener(new ValueEventListener() {
+    private void reloadQuestions(String query) {
+        this.dao.get().addListenerForSingleValueEvent(new ValueEventListener() {
 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 swipeRefreshLayout.setRefreshing(true);
                 if(snapshot.exists()) {
-                    adapter.clearAll();
+                    questionAdapter.clearAll();
                     List<QuestionItem> questionItemList = new ArrayList<>();
                     for (var data : snapshot.getChildren()) {
                         var item = data.getValue(QuestionItem.class);
                         Objects.requireNonNull(item).setPostID(data.getKey());
                         questionItemList.add(item);
-
-
-                        // get replies
-                        dao.getReplies(item.getPostID()).addChildEventListener(new ChildEventListener() {
-
-                            @Override
-                            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                                var replies = new ArrayList<ReplyItem>();
-                                if (snapshot.exists()) {
-                                    replies.add(snapshot.getValue(ReplyItem.class));
-                                }
-                                item.setQuestionReplies(replies);
-                                adapter.notifyDataSetChanged();
-                            }
-
-                            @Override
-                            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                            }
-
-                            @Override
-                            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-                            }
-
-                            @Override
-                            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
                     }
-                    adapter.setQuestions(questionItemList
-                            .stream()
-                            .filter(e ->
-                                    e.getUserID().equals(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid()))
-                            .collect(Collectors.toList()));
-                    adapter.notifyDataSetChanged();
+                    if(!query.trim().isEmpty()) {
+                        questionAdapter.setQuestions(questionItemList
+                                .stream()
+                                .filter(e ->
+                                        e.getQuestionTitle().contains(query)
+                                                || e.getQuestionDescription().contains(query))
+                                .collect(Collectors.toList()));
+
+                    } else {
+                        questionAdapter.setQuestions(questionItemList);
+                    }
+                    questionAdapter.notifyDataSetChanged();
                     swipeRefreshLayout.setRefreshing(false);
                 }
             }
@@ -298,6 +270,77 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void onItemClick(QuestionItem item) {
+        var dialog = new Dialog(getActivity());
+        Utils.showDialog(dialog, R.layout.list_dialog, R.style.dialog_horizontal_swipe_animation);
+
+        RecyclerView questionRecyclerView = dialog.findViewById(R.id.recyclerList);
+        questionRecyclerView.setHasFixedSize(true);
+
+        /* Set the layout manager
+        and adapter for items
+        of the parent recyclerview */
+        questionRecyclerView.setAdapter(replyAdapter);
+        questionRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        SwipeRefreshLayout swipeRefreshLayout  = dialog.findViewById(R.id.swipeLayout);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            reloadReplies(item.getPostID());
+            swipeRefreshLayout.setRefreshing(false);
+        });
+
+        loadReplies(item.getPostID());
+
+    }
+
+    private void reloadReplies(String key) {
+        replyAdapter.clearAll();
+
+        dao.getReplies(key).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()) {
+                    List<ReplyItem> replyItemList = new ArrayList<>();
+                    for (var data : snapshot.getChildren()) {
+                        replyItemList.add(data.getValue(ReplyItem.class));
+                    }
+                    replyAdapter.setReplies(replyItemList);
+                    replyAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void loadReplies(String key) {
+        replyAdapter.clearAll();
+        dao.getReplies(key).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()) {
+                    List<ReplyItem> replyItemList = new ArrayList<>();
+                    for (var data : snapshot.getChildren()) {
+                        replyItemList.add(data.getValue(ReplyItem.class));
+                    }
+                    replyAdapter.setReplies(replyItemList);
+                    replyAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
     }

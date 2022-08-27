@@ -48,7 +48,6 @@
 
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-
         </LinearLayout>
 
         <TextView

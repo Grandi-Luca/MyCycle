@@ -4,17 +4,17 @@ package com.example.mycycle.model;
 import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public class QuestionItem {
 
     private String questionTitle, questionDescription, nickname, userID, uri, postID;
-    private List<ReplyItem> questionReplies;
     private long timestamp;
 
     public QuestionItem() {
-        this.questionReplies = new ArrayList<>();
     }
 
     public String getPostID() {
@@ -62,15 +62,6 @@ public class QuestionItem {
         return this;
     }
 
-    public List<ReplyItem> getQuestionReplies() {
-        return new ArrayList<>(questionReplies);
-    }
-
-    public QuestionItem setQuestionReplies(List<ReplyItem> questionReplies) {
-        this.questionReplies.addAll(questionReplies);
-        return this;
-    }
-
     public long getTimestamp() {
         return timestamp;
     }
@@ -97,7 +88,6 @@ public class QuestionItem {
                 ", questionDescription='" + questionDescription + '\'' +
                 ", nickname='" + nickname + '\'' +
                 ", userID='" + userID + '\'' +
-                ", questionReplies=" + questionReplies +
                 ", timestamp=" + timestamp +
                 ", uri=" + uri +
                 '}';
