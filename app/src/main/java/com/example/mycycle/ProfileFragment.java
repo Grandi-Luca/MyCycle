@@ -1,20 +1,16 @@
 package com.example.mycycle;
 
 import static com.example.mycycle.Utils.isUserLogin;
+import static com.example.mycycle.Utils.showDialog;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -41,7 +37,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -173,28 +168,14 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    private void showDialog(Dialog dialog, int layout, int animation) {
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(false);
-        dialog.setContentView(layout);
-        dialog.getWindow().getAttributes().windowAnimations = animation;
-        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        var btn_cancel = dialog.findViewById(R.id.closeButton);
-        dialog.getWindow().setGravity(Gravity.BOTTOM);
-        btn_cancel.setOnClickListener(v -> dialog.dismiss());
-        dialog.show();
-    }
-
     private void showPersonalPosts() {
         var dialog = new Dialog(getActivity());
-        showDialog(dialog, R.layout.personal_posts_dialog, R.style.dialog_horizontal_swipe_animation);
+        showDialog(dialog, R.layout.list_dialog, R.style.dialog_horizontal_swipe_animation);
 
         this.swipeRefreshLayout = dialog.findViewById(R.id.swipeLayout);
         loadData();
 
-        RecyclerView questionRecyclerView = dialog.findViewById(R.id.questions);
+        RecyclerView questionRecyclerView = dialog.findViewById(R.id.recyclerList);
         questionRecyclerView.setHasFixedSize(true);
 
         /* Set the layout manager

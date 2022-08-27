@@ -16,11 +16,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.mycycle.repo.DAOPost;
 import com.example.mycycle.R;
-import com.example.mycycle.model.ReplyItem;
 import com.example.mycycle.model.QuestionItem;
+import com.example.mycycle.model.ReplyItem;
 import com.example.mycycle.model.User;
+import com.example.mycycle.repo.DAOPost;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -161,11 +161,11 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
         }
     }
 
-    private void setArrowImage(QuestionViewHolder holder, boolean isExpand) {
-        holder.arrow.setImageResource(isExpand
-                ? R.drawable.ic_baseline_arrow_drop_up_24
-                : R.drawable.ic_baseline_arrow_drop_down_24);
-    }
+//    private void setArrowImage(QuestionViewHolder holder, boolean isExpand) {
+//        holder.arrow.setImageResource(isExpand
+//                ? R.drawable.ic_baseline_arrow_drop_up_24
+//                : R.drawable.ic_baseline_arrow_drop_down_24);
+//    }
 
     @Override
     public int getItemCount() {
@@ -192,8 +192,8 @@ public class QuestionAdapter extends RecyclerView.Adapter<QuestionAdapter.Questi
             arrow = itemView.findViewById(R.id.arrowReply);
             expandLayout = itemView.findViewById(R.id.expandLayout);
             replyRecyclerView = itemView.findViewById(R.id.replyList);
-            newReply = itemView.findViewById(R.id.newReplyText);
-            addBtn = itemView.findViewById(R.id.addNewReply);
+            newReply = itemView.findViewById(R.id.newText);
+            addBtn = itemView.findViewById(R.id.addButton);
         }
     }
 }

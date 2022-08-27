@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@null">
@@ -15,28 +16,17 @@
         app:layout_constraintHeight_percent=".5">
 
         <EditText
-            android:id="@+id/title"
+            android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Title"
+            android:hint="add note"
             android:inputType="text"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.2" />
-
-        <EditText
-            android:id="@+id/questionDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="description"
-            android:layout_marginTop="40dp"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.4"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/title"
-            android:inputType="text" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.312" />
 
         <com.google.android.flexbox.FlexboxLayout
             android:id="@+id/flexboxLayout"
@@ -48,26 +38,26 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.4"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/questionDescription">
+            app:layout_constraintTop_toBottomOf="@+id/description">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/addNew"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="30dp"
                 android:backgroundTint="@color/primary"
                 android:text="@string/add"
                 android:textColor="@color/white"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 app:cornerRadius="10dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/closeButton"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/white"
-                android:text="@string/cancel"
-                style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+                android:text="@string/close_button"
                 android:textColor="@color/primary" />
 
         </com.google.android.flexbox.FlexboxLayout>

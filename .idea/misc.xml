@@ -39,6 +39,8 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.29506120726044743" />
         <entry key="app/src/main/res/layout/activity_register_user.xml" value="0.17371826171875002" />
         <entry key="app/src/main/res/layout/activity_user_section.xml" value="0.2563405797101449" />
+        <entry key="app/src/main/res/layout/add_component.xml" value="0.297990594271056" />
+        <entry key="app/src/main/res/layout/add_new_note_dialog.xml" value="0.29884566053869177" />
         <entry key="app/src/main/res/layout/add_new_post_dialog.xml" value="0.22170562744140626" />
         <entry key="app/src/main/res/layout/answear_card.xml" value="0.23674468994140627" />
         <entry key="app/src/main/res/layout/calendar.xml" value="0.36302083333333335" />
@@ -50,9 +52,12 @@
         <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.29506120726044743" />
         <entry key="app/src/main/res/layout/fragment_forum.xml" value="0.27516817677576555" />
         <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.364154803605098" />
+        <entry key="app/src/main/res/layout/list_dialog.xml" value="0.29506120726044743" />
         <entry key="app/src/main/res/layout/menses_cell.xml" value="0.36302083333333335" />
         <entry key="app/src/main/res/layout/navbar.xml" value="0.27220934427105614" />
         <entry key="app/src/main/res/layout/nested_item.xml" value="0.29884566053869177" />
+        <entry key="app/src/main/res/layout/no_note_item.xml" value="0.297990594271056" />
+        <entry key="app/src/main/res/layout/note_item.xml" value="0.297990594271056" />
         <entry key="app/src/main/res/layout/personal_posts_dialog.xml" value="0.297990594271056" />
         <entry key="app/src/main/res/layout/personal_question_item.xml" value="0.29884566053869177" />
         <entry key="app/src/main/res/layout/question_card.xml" value="0.3260209897788685" />

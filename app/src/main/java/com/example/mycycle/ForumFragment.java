@@ -23,15 +23,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.mycycle.model.QuestionItem;
 import com.example.mycycle.model.ReplyItem;
 import com.example.mycycle.adapter.QuestionAdapter;
-import com.example.mycycle.model.User;
 import com.example.mycycle.repo.DAOPost;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-
-import net.yslibrary.android.keyboardvisibilityevent.KeyboardVisibilityEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,7 +71,7 @@ public class ForumFragment extends Fragment {
         this.swipeRefreshLayout = view.findViewById(R.id.swipeLayout);
         this.searchView = view.findViewById(R.id.searchView);
 
-        RecyclerView questionRecyclerView = view.findViewById(R.id.questions);
+        RecyclerView questionRecyclerView = view.findViewById(R.id.recyclerList);
         questionRecyclerView.setHasFixedSize(true);
 
         /* Set the layout manager
@@ -116,7 +112,6 @@ public class ForumFragment extends Fragment {
     }
 
     private void loadData(String query) {
-        swipeRefreshLayout.setRefreshing(true);
         this.dao.get().addValueEventListener(new ValueEventListener() {
 
             @Override
@@ -203,7 +198,7 @@ public class ForumFragment extends Fragment {
         btn_cancel.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
 
-        dialog.findViewById(R.id.addNewPost).setOnClickListener(v -> {
+        dialog.findViewById(R.id.addNew).setOnClickListener(v -> {
             var title = (EditText) dialog.findViewById(R.id.title);
             var description = (EditText) dialog.findViewById(R.id.questionDescription);
 

@@ -1,5 +1,12 @@
 package com.example.mycycle;
 
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.view.Gravity;
+import android.view.Window;
+import android.view.WindowManager;
+
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.time.LocalDate;
@@ -31,6 +38,20 @@ public class Utils {
         }
         return is24HourFormat ? date :
                 LocalTime.parse(date).format(DateTimeFormatter.ofPattern("hh:mm a"));
+    }
+
+    public static void showDialog(Dialog dialog, int layout, int animation) {
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(layout);
+        dialog.getWindow().getAttributes().windowAnimations = animation;
+        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        var btn_cancel = dialog.findViewById(R.id.closeButton);
+        dialog.getWindow().setGravity(Gravity.BOTTOM);
+        btn_cancel.setOnClickListener(v -> dialog.dismiss());
+        dialog.show();
     }
 
 }

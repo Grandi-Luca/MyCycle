@@ -8,6 +8,8 @@
     <string name="save">SAVE</string>
     <string name="add">ADD</string>
     <string name="cancel">CANCEL</string>
-    <string name="close_button">close button</string>
+    <string name="close_button">close</string>
     <string name="set_text_button">set</string>
+    <string name="back_text">back</string>
+    <string name="no_note">Nessuna nota salvata in questo giorno</string>
 </resources>

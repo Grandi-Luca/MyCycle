@@ -20,7 +20,7 @@
         android:layout_marginBottom="10dp">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/questions"
+            android:id="@+id/recyclerList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
