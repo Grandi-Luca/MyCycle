@@ -1,20 +1,29 @@
 package com.example.mycycle;
 
+import static com.example.mycycle.MainActivity.currentUser;
 import static com.example.mycycle.Utils.isUserLogin;
 import static com.example.mycycle.Utils.showDialog;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
@@ -32,11 +41,15 @@ import com.example.mycycle.model.ReplyItem;
 import com.example.mycycle.model.User;
 import com.example.mycycle.repo.DAOPost;
 import com.example.mycycle.repo.FirebaseDAOUser;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -44,6 +57,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("SameParameterValue")
 public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemListener {
     FirebaseDAOUser daoUser;
     private DAOPost dao;
@@ -52,12 +66,25 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
     SwitchMaterial medicineReminderSwitch;
 
     private TextView nickname, menstruationDuration, periodDuration;
-    private ImageView profilePicture;
+    private EditText dialogNickname, dialogDurationMenstruation, dialogDurationPeriod;
+    private ImageView profilePicture, dialogProfilePicture;
     private SwipeRefreshLayout swipeRefreshLayout;
     private QuestionAdapter questionAdapter;
     private ReplyAdapter replyAdapter;
 
-    public static User currentUser;
+    private Uri uriProfileImage;
+
+    private final ActivityResultLauncher<Intent> launcher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+    result -> {
+        if (result.getResultCode() == Activity.RESULT_OK
+                && result.getData() != null) {
+                uriProfileImage = result.getData().getData();
+            if(dialogProfilePicture != null) {
+                dialogProfilePicture.setImageURI(uriProfileImage);
+            }
+        }
+    });
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -86,11 +113,9 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
         profilePicture = view.findViewById(R.id.profileImage);
         nickname = view.findViewById(R.id.nickname);
         menstruationDuration = view.findViewById(R.id.menstruationDuration);
-        periodDuration = view.findViewById(R.id.duration_period);
+        periodDuration = view.findViewById(R.id.durationPeriod);
 
-        loadUserData();
-
-        if(!isUserLogin()){
+        if(!isUserLogin()) {
             Intent intent = new Intent(getActivity(), LoginUser.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
@@ -99,6 +124,8 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
 
             return null;
         }
+
+        loadUserData();
 
         medicineReminderSwitch = view.findViewById(R.id.medicineReminderSwitch);
         medicineReminderSwitch.setChecked(notificationService.isMedicineReminderActive());
@@ -138,12 +165,92 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
             currentUser = null;
         });
 
+        MaterialCardView card = view.findViewById(R.id.accountInfo);
+        if (card != null) {
+            card.setOnClickListener(v -> {
+                if (currentUser != null) {
+                    showModifyInfoUserDialog();
+                }
+            });
+        }
         return view;
+    }
+
+    private void loadUserData() {
+        daoUser.getCurrentUserInfo().addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                var user = snapshot.getValue(User.class);
+                if (user != null) {
+                    currentUser = user.setUserID(snapshot.getKey());
+
+                    // set profile filed
+                    nickname.setText(currentUser.getNickname());
+                    menstruationDuration.setText(String.valueOf(currentUser.getDurationMenstruation()));
+                    periodDuration.setText(String.valueOf(currentUser.getDurationPeriod()));
+
+                    var activity = getActivity();
+                    if (activity != null) {
+                        Glide.with(activity)
+                                .load(currentUser.getProfilePicture())
+                                .into(profilePicture);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void showModifyInfoUserDialog() {
+        var dialog = new Dialog(getActivity());
+        showDialog(dialog, R.layout.modify_info_user_dialog, R.style.dialog_top_down_swipe_animation);
+
+        dialogProfilePicture = dialog.findViewById(R.id.profileImage);
+        dialogNickname = dialog.findViewById(R.id.nickname);
+        dialogDurationMenstruation = dialog.findViewById(R.id.menstruationDuration);
+        dialogDurationPeriod = dialog.findViewById(R.id.durationPeriod);
+
+        dialogNickname.setText(currentUser.getNickname());
+        dialogDurationMenstruation.setText(String.valueOf(currentUser.getDurationMenstruation()));
+        dialogDurationPeriod.setText(String.valueOf(currentUser.getDurationPeriod()));
+
+        var activity = getActivity();
+        if(activity != null) {
+            if(currentUser.getProfilePicture().isEmpty()) {
+                dialogProfilePicture.setImageURI(Uri
+                        .parse("android.resource://com.example.mycycle/"
+                                + R.drawable.default_profile_image));
+            } else {
+                Glide.with(getActivity())
+                        .load(currentUser.getProfilePicture())
+                        .into(dialogProfilePicture);
+            }
+        }
+
+        // load image from gallery
+        dialog.findViewById(R.id.buttonLoadPicture).setOnClickListener(view -> {
+            Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+            launcher.launch(galleryIntent);
+        });
+
+        dialog.findViewById(R.id.save).setOnClickListener(view -> {
+            updateUserInfo();
+            dialog.dismiss();
+        });
+
+        dialog.findViewById(R.id.closeButton).setOnClickListener(view -> {
+            dialog.dismiss();
+        });
     }
 
     private void showTimePickerDialog(){
         var dialog = new Dialog(getActivity());
-        showDialog(dialog, R.layout.time_picker_dialog, R.style.dialog_vertical_swipe_animation);
+        showDialog(dialog, R.layout.time_picker_dialog, R.style.dialog_down_top_swipe_animation);
 
         dialog.findViewById(R.id.setAlarm).setOnClickListener(v -> {
 
@@ -191,50 +298,82 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
         });
     }
 
-    private void loadUserData() {
-        if(currentUser != null) {
-            var activity = getActivity();
-            if(activity != null) {
-                Glide.with(activity)
-                        .load(currentUser.getProfilePicture())
-                        .into(profilePicture);
-            }
-            nickname.setText(currentUser.getNickname());
-            menstruationDuration.setText(currentUser.getDurationMenstruation() != 1
-                    ? currentUser.getDurationMenstruation() + " giorni"
-                    : currentUser.getDurationMenstruation() + " giorno");
-            periodDuration.setText(currentUser.getDurationPeriod() != 1
-                    ? currentUser.getDurationPeriod() + " giorni"
-                    : currentUser.getDurationPeriod() + " giorno");
-        } else {
-            daoUser.getUserInfo().addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    User user = snapshot.getValue(User.class);
-                    currentUser = user;
-                    if (!Objects.requireNonNull(user).getProfilePicture().isEmpty()) {
-                        // load profile picture
-                        var activity = getActivity();
-                        if (activity != null) {
-                            Glide.with(activity)
-                                    .load(user.getProfilePicture())
-                                    .into(profilePicture);
-                        }
-                    }
-                    nickname.setText(user.getNickname());
-                    menstruationDuration.setText(user.getDurationMenstruation() != 1
-                            ? user.getDurationMenstruation() + " giorni"
-                            : user.getDurationMenstruation() + " giorno");
-                    periodDuration.setText(user.getDurationPeriod() != 1
-                            ? user.getDurationPeriod() + " giorni"
-                            : user.getDurationPeriod() + " giorno");
+    private void updateUserInfo() {
+        String nickname = this.dialogNickname.getText().toString();
+        String durationPeriod = this.dialogDurationPeriod.getText().toString().trim();
+        String durationMenstruation = this.dialogDurationMenstruation.getText().toString().trim();
+
+        if(this.isEmpty(nickname.trim(), this.dialogNickname, "nickname")
+                || this.isEmpty(durationPeriod, this.dialogDurationPeriod, "duration period")
+                || this.isEmpty(durationMenstruation, this.dialogDurationMenstruation,"duration menstruation")) {
+            return;
+        }
+
+        var user = new User()
+                .setUserID(currentUser.getUserID())
+                .setNickname(dialogNickname.getText().toString())
+                .setDurationPeriod(Integer.parseInt(dialogDurationPeriod.getText().toString()))
+                .setDurationMenstruation(Integer.parseInt(dialogDurationMenstruation
+                        .getText().toString()))
+                .setFirstDay(currentUser.getFirstDay())
+                .setProfilePicture(currentUser.getProfilePicture());
+
+        daoUser.updateUserInfo(user).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(getActivity(),
+                        "Info has been updated",
+                        Toast.LENGTH_SHORT).show();
+
+                if(uriProfileImage != null) {
+                    daoUser.updateProfileImage(uriProfileImage)
+                            .continueWithTask((Continuation<UploadTask.TaskSnapshot, Task<Uri>>) uploadOnStorage -> {
+                                if (!uploadOnStorage.isSuccessful()) {
+                                    throw Objects.requireNonNull(uploadOnStorage.getException());
+                                }
+                                return daoUser.getStorageReference().getDownloadUrl();})
+                            .addOnCompleteListener(uriTask -> {
+                                if (uriTask.isSuccessful()) {
+                                    Uri downloadUri = uriTask.getResult();
+                                    daoUser.getCurrentUserInfo().child("profilePicture")
+                                            .setValue(downloadUri.toString());
+                                }
+                            });
                 }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                }
-            });
+            }
+        });
+    }
+
+    private boolean isEmpty(@NonNull String str, EditText editText, String nameField){
+        if(str.isEmpty()) {
+            editText.setError(nameField + "is required");
+            editText.requestFocus();
+            return true;
         }
+        return false;
+    }
+
+    @Override
+    public void onItemClick(QuestionItem item) {
+        var dialog = new Dialog(getActivity());
+        Utils.showDialog(dialog, R.layout.list_dialog, R.style.dialog_horizontal_swipe_animation);
+
+        RecyclerView questionRecyclerView = dialog.findViewById(R.id.recyclerList);
+        questionRecyclerView.setHasFixedSize(true);
+
+        /* Set the layout manager
+        and adapter for items
+        of the parent recyclerview */
+        questionRecyclerView.setAdapter(replyAdapter);
+        questionRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        SwipeRefreshLayout swipeRefreshLayout = dialog.findViewById(R.id.swipeLayout);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            swipeRefreshLayout.setRefreshing(false);
+        });
+
+        loadReplies(item.getPostID());
+
     }
 
     private void reloadQuestions(String query) {
@@ -248,7 +387,28 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
                     List<QuestionItem> questionItemList = new ArrayList<>();
                     for (var data : snapshot.getChildren()) {
                         var item = data.getValue(QuestionItem.class);
-                        Objects.requireNonNull(item).setPostID(data.getKey());
+                        if(item != null) {
+                            item.setPostID(data.getKey());
+                            daoUser.getUserInfo(item.getUserID())
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            var user = snapshot.getValue(User.class);
+                                            if (user != null) {
+                                                item.setNickname(user.getNickname())
+                                                        .setUri(user.getProfilePicture());
+
+                                                questionAdapter.notifyDataSetChanged();
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                        }
+                                    });
+
+                        }
                         questionItemList.add(item);
                     }
                     if(!query.trim().isEmpty()) {
@@ -276,53 +436,6 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
         swipeRefreshLayout.setRefreshing(false);
     }
 
-    @Override
-    public void onItemClick(QuestionItem item) {
-        var dialog = new Dialog(getActivity());
-        Utils.showDialog(dialog, R.layout.list_dialog, R.style.dialog_horizontal_swipe_animation);
-
-        RecyclerView questionRecyclerView = dialog.findViewById(R.id.recyclerList);
-        questionRecyclerView.setHasFixedSize(true);
-
-        /* Set the layout manager
-        and adapter for items
-        of the parent recyclerview */
-        questionRecyclerView.setAdapter(replyAdapter);
-        questionRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-        SwipeRefreshLayout swipeRefreshLayout  = dialog.findViewById(R.id.swipeLayout);
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            reloadReplies(item.getPostID());
-            swipeRefreshLayout.setRefreshing(false);
-        });
-
-        loadReplies(item.getPostID());
-
-    }
-
-    private void reloadReplies(String key) {
-        replyAdapter.clearAll();
-
-        dao.getReplies(key).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()) {
-                    List<ReplyItem> replyItemList = new ArrayList<>();
-                    for (var data : snapshot.getChildren()) {
-                        replyItemList.add(data.getValue(ReplyItem.class));
-                    }
-                    replyAdapter.setReplies(replyItemList);
-                    replyAdapter.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
     private void loadReplies(String key) {
         replyAdapter.clearAll();
         dao.getReplies(key).addValueEventListener(new ValueEventListener() {
@@ -331,7 +444,29 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
                 if(snapshot.exists()) {
                     List<ReplyItem> replyItemList = new ArrayList<>();
                     for (var data : snapshot.getChildren()) {
-                        replyItemList.add(data.getValue(ReplyItem.class));
+                        var reply = data.getValue(ReplyItem.class);
+
+                        if (reply != null) {
+                            daoUser.getUserInfo(reply.getUserID())
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                            var user = snapshot.getValue(User.class);
+                                            if (user != null) {
+                                                reply.setNickname(user.getNickname())
+                                                        .setUri(user.getProfilePicture());
+
+                                                replyAdapter.notifyDataSetChanged();
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+
+                                        }
+                                    });
+                        }
+                        replyItemList.add(reply);
                     }
                     replyAdapter.setReplies(replyItemList);
                     replyAdapter.notifyDataSetChanged();
