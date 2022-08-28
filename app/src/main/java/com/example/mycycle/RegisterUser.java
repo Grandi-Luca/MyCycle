@@ -83,7 +83,7 @@ public class RegisterUser extends AppCompatActivity {
         this.editEmail = findViewById(R.id.email);
         this.editPassword = findViewById(R.id.password);
         this.editConfirmPassword = findViewById(R.id.confirm_password);
-        this.editDurationPeriod = findViewById(R.id.duration_period);
+        this.editDurationPeriod = findViewById(R.id.durationPeriod);
         this.editDurationMenstruation = findViewById(R.id.menstruationDuration);
         this.textClock = findViewById(R.id.textClock);
         this.pill = findViewById(R.id.pill);
@@ -164,24 +164,24 @@ public class RegisterUser extends AppCompatActivity {
                 || this.isEmpty(confirmPassword, this.editConfirmPassword, "confirm password")
                 || this.isEmpty(durationPeriod, this.editDurationPeriod, "duration period")
                 || this.isEmpty(durationMenstruation, this.editDurationMenstruation,"duration menstruation")
-                || this.isEmpty(firstDay, this.eLastTime, "first day of the last period")){
+                || this.isEmpty(firstDay, this.eLastTime, "first day of the last period")) {
             return;
         }
 
         // check if the patterns matches with the fields
-        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
+        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             this.editEmail.setError("Please provide valid email");
             this.editEmail.requestFocus();
             return;
         }
 
-        if(password.length() < 6){
+        if(password.length() < 6) {
             this.editPassword.setError("Min password length should be 6 characters");
             this.editPassword.requestFocus();
             return;
         }
 
-        if(!confirmPassword.equals(password)){
+        if(!confirmPassword.equals(password)) {
             this.editConfirmPassword.setError("Confirm password must bu equal to password");
             this.editConfirmPassword.requestFocus();
             return;
@@ -195,7 +195,7 @@ public class RegisterUser extends AppCompatActivity {
         // create new user and save in firebase realtime database
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(registerAuth -> {
-                    if(registerAuth.isSuccessful()){
+                    if(registerAuth.isSuccessful()) {
 
                         // create user
                         User user = new User()
@@ -221,7 +221,6 @@ public class RegisterUser extends AppCompatActivity {
                                 var storageReference = FirebaseStorage.getInstance("gs://auth-89f75.appspot.com")
                                         .getReference().child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
-                                System.err.println(storageReference.getPath());
                                 // insert profile picture on database storage
                                 storageReference.putFile(uriProfileImage).addOnSuccessListener(taskSnapshot -> {
                                     taskSnapshot.getMetadata();

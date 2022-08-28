@@ -9,11 +9,8 @@ import android.view.WindowManager;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Utils {
 
@@ -52,6 +49,23 @@ public class Utils {
         dialog.getWindow().setGravity(Gravity.BOTTOM);
         btn_cancel.setOnClickListener(v -> dialog.dismiss());
         dialog.show();
+    }
+
+    public enum Format {
+        TWENTY_FOUR_H_FORMAT("HH:mm:ss"),
+        TWELVE_H_FORMAT("hh:mm:ss a"),
+        FULL_DATE_FORMAT("dd/MM/yyyy"),
+        MONTH_YEAR_FORMAT("MM/yyyy");
+
+        private String format;
+
+        Format(String format) {
+            this.format = format;
+        }
+
+        public String getFormat() {
+            return format;
+        }
     }
 
 }

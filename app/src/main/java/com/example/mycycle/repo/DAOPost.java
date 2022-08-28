@@ -25,31 +25,8 @@ public class DAOPost {
                 .getInstance("https://auth-89f75-default-rtdb.europe-west1.firebasedatabase.app");
     }
 
-    public void addQuestion(String title, String description) {
-        FirebaseDatabase.getInstance("https://auth-89f75-default-rtdb.europe-west1.firebasedatabase.app/")
-            .getReference("users")
-            .child(Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid())
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        var currentUser = snapshot.getValue(User.class);
-                        Objects.requireNonNull(currentUser).setUserID(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                        var quest = new QuestionItem()
-                                .setUserID(currentUser.getUserID())
-                                .setNickname(Objects.requireNonNull(currentUser).getNickname())
-                                .setQuestionTitle(String.valueOf(title))
-                                .setQuestionDescription(description)
-                                .setTimestamp(-1 * new Date().getTime())
-                                .setUri(currentUser.getProfilePicture());
-
-                        databaseReference.getReference("questions").push().setValue(quest);
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
+    public Task<Void> addQuestion(QuestionItem quest) {
+        return databaseReference.getReference("questions").push().setValue(quest);
     }
 
     public Task<Void> addReply(String key, ReplyItem replyItem) {

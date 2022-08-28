@@ -1,5 +1,6 @@
 package com.example.mycycle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -7,19 +8,45 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 
+import com.bumptech.glide.Glide;
 import com.example.mycycle.databinding.ActivityMainBinding;
+import com.example.mycycle.model.User;
+import com.example.mycycle.repo.FirebaseDAOUser;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
+    public static User currentUser;
+    private FirebaseDAOUser daoUser;
 
     @SuppressLint("NonConstantResourceId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
+
+        daoUser = new FirebaseDAOUser();
+        daoUser.getCurrentUserInfo().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                var user = snapshot.getValue(User.class);
+                if (user != null) {
+                    currentUser = user.setUserID(snapshot.getKey());
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
         setContentView(binding.getRoot());
         replaceFragment(new DashboardFragment());
 

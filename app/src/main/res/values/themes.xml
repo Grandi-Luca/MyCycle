@@ -14,12 +14,21 @@
         <!-- Customize your theme here. -->
     </style>
     
-    <style name="dialog_vertical_swipe_animation">
+    <style name="dialog_down_top_swipe_animation">
         <item name="android:windowEnterAnimation">
-            @anim/slide_up
+            @anim/slide_up_from_bottom
         </item>
         <item name="android:windowExitAnimation">
-            @anim/slide_down
+            @anim/slide_down_to_bottom
+        </item>
+    </style>
+
+    <style name="dialog_top_down_swipe_animation">
+        <item name="android:windowEnterAnimation">
+            @anim/slide_down_from_top
+        </item>
+        <item name="android:windowExitAnimation">
+            @anim/slide_up_to_top
         </item>
     </style>
 

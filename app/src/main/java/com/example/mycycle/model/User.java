@@ -2,9 +2,11 @@ package com.example.mycycle.model;
 
 public class User {
 
-    private String nickname, firstDay, reminder, profilePicture, userID;
+    private String nickname;
+    private String firstDay;
+    private String profilePicture;
+    private String userID;
     private int durationPeriod, durationMenstruation;
-    private boolean pill;
 
     public User() {
     }
@@ -61,5 +63,17 @@ public class User {
     public User setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "nickname='" + nickname + '\'' +
+                ", firstDay='" + firstDay + '\'' +
+                ", profilePicture='" + profilePicture + '\'' +
+                ", userID='" + userID + '\'' +
+                ", durationPeriod=" + durationPeriod +
+                ", durationMenstruation=" + durationMenstruation +
+                '}';
     }
 }
