@@ -25,8 +25,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.mycycle.model.Menstruation;
 import com.example.mycycle.model.NotificationService;
 import com.example.mycycle.model.User;
+import com.example.mycycle.repo.MenstruationRepository;
 import com.example.mycycle.worker.AlarmReceiver;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -76,7 +78,7 @@ public class RegisterUser extends AppCompatActivity {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    @SuppressLint({"DefaultLocale", "CutPasteId"})
+    @SuppressLint({"DefaultLocale"})
     private void initActivity(){
 
         this.editNickName = findViewById(R.id.nickname);
@@ -110,7 +112,6 @@ public class RegisterUser extends AppCompatActivity {
         });
 
         findViewById(R.id.register).setOnClickListener(view -> registerUser());
-
 
         pill.setOnClickListener(v->{
             findViewById(R.id.setAlarmContainer)
@@ -252,14 +253,33 @@ public class RegisterUser extends AppCompatActivity {
                                             notificationService.setMedicineDailyNotification(calendar);
                                         }
 
-                                        var date = LocalDate.parse(eLastTime.getText().toString(),
-                                                DateTimeFormatter.ofPattern("d/MM/yyyy"));
-                                        calendar.set(Calendar.MONTH, date.getMonthValue());
-                                        calendar.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
-                                        calendar.set(Calendar.HOUR_OF_DAY, 9);
-                                        calendar.set(Calendar.MINUTE, 0);
-                                        calendar.set(Calendar.SECOND, 0);
-                                        notificationService.setMenstruationNotification(calendar);
+//                                        var curTime = Calendar.getInstance();
+//                                        calendar = Calendar.getInstance();
+//                                        var date = LocalDate.parse(eLastTime.getText().toString(),
+//                                                DateTimeFormatter.ofPattern("d/M/yyyy"));
+//                                        calendar.set(Calendar.YEAR, date.getYear());
+//                                        calendar.set(Calendar.MONTH, date.getMonthValue() - 1);
+//                                        calendar.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
+//                                        calendar.add(Calendar.MINUTE, 5);
+//                                        calendar.set(Calendar.SECOND, 0);
+//                                        notificationService.setMenstruationNotification(calendar);
+//
+//                                        var repo = new MenstruationRepository(this);
+//                                        while(curTime.after(calendar)) {
+//
+//                                            var startDay = LocalDate.of(calendar.get(Calendar.YEAR),
+//                                                    calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)).toString();
+//                                            calendar.add(Calendar.DAY_OF_MONTH, Integer.parseInt(editDurationMenstruation.getText().toString()));
+//                                            var lastDay = LocalDate.of(calendar.get(Calendar.YEAR),
+//                                                    calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)).toString();
+//
+//                                            repo.insert(new Menstruation()
+//                                                    .setStartDay(startDay)
+//                                                    .setLastDay(lastDay)
+//                                                    .setUserID(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+//
+//                                            calendar.add(Calendar.DAY_OF_MONTH, Integer.parseInt(editDurationPeriod.getText().toString()));
+//                                        }
                                     });
                                 });
 

@@ -146,7 +146,7 @@ public class ForumFragment extends Fragment implements QuestionAdapter.OnItemLis
 
                                         @Override
                                         public void onCancelled(@NonNull DatabaseError error) {
-
+                                            swipeRefreshLayout.setRefreshing(false);
                                         }
                                     });
 

@@ -41,6 +41,8 @@ import com.example.mycycle.model.ReplyItem;
 import com.example.mycycle.model.User;
 import com.example.mycycle.repo.DAOPost;
 import com.example.mycycle.repo.FirebaseDAOUser;
+import com.example.mycycle.repo.MenstruationRepository;
+import com.example.mycycle.worker.AlarmReceiver;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.card.MaterialCardView;
@@ -53,6 +55,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -108,7 +111,7 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
         this.replyAdapter = new ReplyAdapter(getActivity());
         this.dao = new DAOPost();
 
-        notificationService = new NotificationService(requireContext());
+        notificationService = new NotificationService(getActivity());
 
         profilePicture = view.findViewById(R.id.profileImage);
         nickname = view.findViewById(R.id.nickname);
@@ -336,6 +339,14 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
                                     Uri downloadUri = uriTask.getResult();
                                     daoUser.getCurrentUserInfo().child("profilePicture")
                                             .setValue(downloadUri.toString());
+
+                                    AlarmReceiver.menstruationPeriod = Integer.parseInt(
+                                            dialogDurationPeriod.getText().toString());
+                                    AlarmReceiver.menstruationDuration = Integer.parseInt(
+                                            dialogDurationMenstruation.getText().toString());
+
+                                    notificationService.cancelMenstruationNotification();
+
                                 }
                             });
                 }

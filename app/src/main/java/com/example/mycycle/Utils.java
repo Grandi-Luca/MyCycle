@@ -54,8 +54,8 @@ public class Utils {
     public enum Format {
         TWENTY_FOUR_H_FORMAT("HH:mm:ss"),
         TWELVE_H_FORMAT("hh:mm:ss a"),
-        FULL_DATE_FORMAT("dd/MM/yyyy"),
-        MONTH_YEAR_FORMAT("MM/yyyy");
+        FULL_DATE_FORMAT("d/M/yyyy"),
+        MONTH_YEAR_FORMAT("M/yyyy");
 
         private String format;
 

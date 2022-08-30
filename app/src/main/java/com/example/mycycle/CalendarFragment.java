@@ -3,6 +3,7 @@ package com.example.mycycle;
 import static com.example.mycycle.CalendarUtils.daysInMonthArray;
 import static com.example.mycycle.CalendarUtils.monthYearFromDate;
 import static com.example.mycycle.CalendarUtils.selectedDate;
+import static com.example.mycycle.MainActivity.currentUser;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -19,8 +20,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.mycycle.adapter.CalendarAdapter;
 import com.example.mycycle.adapter.NoteAdapter;
 import com.example.mycycle.adapter.CalendarAdapter.OnItemListener;
+import com.example.mycycle.model.Menstruation;
 import com.example.mycycle.model.Note;
 import com.example.mycycle.repo.NoteRepository;
+import com.example.mycycle.viewModel.RepositoryViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.time.LocalDate;
@@ -41,7 +44,9 @@ public class CalendarFragment extends Fragment implements OnItemListener {
     private FloatingActionButton infoFAB;
     private FloatingActionButton editFAB;
 
-    NoteRepository repository;
+    private NoteRepository noteRepository;
+
+    private RepositoryViewModel mViewModel;
 
     public CalendarFragment() {
     }
@@ -58,12 +63,25 @@ public class CalendarFragment extends Fragment implements OnItemListener {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_calendar, container, false);
 
-        repository = new NoteRepository(getActivity().getApplication());
+        noteRepository = new NoteRepository(getActivity().getApplication());
+        mViewModel = new RepositoryViewModel(getActivity().getApplication());
+
         adapter = new NoteAdapter();
 
         initWidgets(view);
 
+        Menstruation menstruation = mViewModel
+                .getLastMenstruationSaved(currentUser.getUserID());
+        LocalDate date;
+        if (menstruation == null) {
+            date = LocalDate.parse(currentUser.getFirstDay(), DateTimeFormatter.ofPattern("d/M/yyyy"));
+        } else {
+            date = LocalDate.parse(menstruation.getStartDay());
+        }
+
         CalendarUtils.selectedDate = Optional.ofNullable(LocalDate.now());
+        CalendarUtils.lastMenstruation = date;
+
         updateMonthView(LocalDate.now());
 
         return view;
@@ -77,9 +95,7 @@ public class CalendarFragment extends Fragment implements OnItemListener {
         infoFAB = v.findViewById(R.id.infoFab);
         noteFAB = v.findViewById(R.id.noteFab);
 
-        infoFAB.setVisibility(View.GONE);
-        noteFAB.setVisibility(View.GONE);
-        editFAB.setVisibility(View.GONE);
+        hideAll();
         isAllFABVisible = false;
 
         v.findViewById(R.id.extendedFab).setOnClickListener(view -> {
@@ -106,11 +122,11 @@ public class CalendarFragment extends Fragment implements OnItemListener {
             Dialog dialog = new Dialog(getActivity());
             Utils.showDialog(dialog,
                     R.layout.add_new_note_dialog,
-                    R.style.dialog_vertical_swipe_animation);
+                    R.style.dialog_down_top_swipe_animation);
 
             dialog.findViewById(R.id.addButton).setOnClickListener(v1 -> {
                 TextView text = dialog.findViewById(R.id.description);
-                repository.insertNote(new Note()
+                noteRepository.insertNote(new Note()
                         .setNote(text.getText().toString())
                         .setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))));
                 dialog.dismiss();
@@ -122,7 +138,7 @@ public class CalendarFragment extends Fragment implements OnItemListener {
         infoFAB.setOnClickListener(view -> {
 
             Dialog dialog = new Dialog(getActivity());
-            Utils.showDialog(dialog, R.layout.list_dialog, R.style.dialog_vertical_swipe_animation);
+            Utils.showDialog(dialog, R.layout.list_dialog, R.style.dialog_down_top_swipe_animation);
 
             RecyclerView recyclerView = dialog.findViewById(R.id.recyclerList);
             recyclerView.setHasFixedSize(true);
@@ -143,7 +159,14 @@ public class CalendarFragment extends Fragment implements OnItemListener {
         monthYearText.setText(monthYearFromDate(date));
         ArrayList<LocalDate> daysInMonth = daysInMonthArray(date);
 
-        CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth, this);
+        var listActual =
+                mViewModel.getMonthlyMenstruationEvent(currentUser,
+                        date);
+
+        var listPredicted = mViewModel.getPredictedMenstruation(currentUser, date);
+
+        CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth,
+                this, listActual, listPredicted);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(requireContext().getApplicationContext(), 7);
         calendarRecyclerView.setLayoutManager(layoutManager);
         calendarRecyclerView.setAdapter(calendarAdapter);
@@ -153,6 +176,10 @@ public class CalendarFragment extends Fragment implements OnItemListener {
         LocalDate date = CalendarUtils.selectedDate.orElseGet(LocalDate::now);
 
         CalendarUtils.selectedDate = Optional.ofNullable(date.minusMonths(1));
+        CalendarUtils.lastMenstruation =
+                LocalDate.parse(mViewModel
+                        .getLastMenstruationSaved(currentUser.getUserID())
+                        .getStartDay());
         updateMonthView(date.minusMonths(1));
     }
 
@@ -173,7 +200,7 @@ public class CalendarFragment extends Fragment implements OnItemListener {
 
     private boolean loadNotes() {
         if(selectedDate.isPresent()) {
-            var notes = repository.getNotes(selectedDate.get().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            var notes = noteRepository.getNotes(selectedDate.get().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
             adapter.setNotes(notes);
             return notes.size() > 0;
         }

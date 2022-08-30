@@ -11,9 +11,12 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.example.mycycle.R;
+import com.example.mycycle.model.Menstruation;
 import com.example.mycycle.model.NotificationService;
-import com.example.mycycle.model.NotificationServiceInterface;
+import com.example.mycycle.repo.MenstruationRepository;
+import com.google.firebase.auth.FirebaseAuth;
 
+import java.time.LocalDate;
 import java.util.Calendar;
 
 
@@ -22,12 +25,17 @@ public class AlarmReceiver extends BroadcastReceiver {
     public static final String NOTIFICATION_ID = "notificationID";
     public static final int MEDICINE_NOTIFICATION_ID = 1;
     public static final int MENSTRUATION_NOTIFICATION_ID = 2;
+    public static final int MENSTRUATION_TRACKING_ID = 3;
     public static final String TITLE_EXTRA = "titleExtra";
+    public static final String YEAR = "year";
+    public static final String MONTH = "month";
+    public static final String DAY = "day";
     public static final String HOUR = "hour";
     public static final String MINUTE = "minute";
     public static final String MEDICINE_CHANNEL_ID = "medicine notification";
     public static final String MENSTRUATION_CHANNEL_ID = "menstruation notification";
     public static int menstruationPeriod = -1;
+    public static int menstruationDuration = -1;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     @Override

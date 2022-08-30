@@ -8,22 +8,26 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.util.Log;
 
-import com.bumptech.glide.Glide;
 import com.example.mycycle.databinding.ActivityMainBinding;
+import com.example.mycycle.model.Menstruation;
 import com.example.mycycle.model.User;
 import com.example.mycycle.repo.FirebaseDAOUser;
+import com.example.mycycle.viewModel.RepositoryViewModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
     public static User currentUser;
     private FirebaseDAOUser daoUser;
+    private RepositoryViewModel mViewModel;
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -31,13 +35,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
 
+        mViewModel = new RepositoryViewModel(this.getApplication());
+
         daoUser = new FirebaseDAOUser();
-        daoUser.getCurrentUserInfo().addListenerForSingleValueEvent(new ValueEventListener() {
+        daoUser.getCurrentUserInfo().addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 var user = snapshot.getValue(User.class);
                 if (user != null) {
                     currentUser = user.setUserID(snapshot.getKey());
+                    calendarInit();
                 }
             }
 
@@ -98,5 +105,37 @@ public class MainActivity extends AppCompatActivity {
         } else if(fragment.getClass().getName() == ProfileFragment.class.getName()){
             mBottomNavigationView.getMenu().findItem(R.id.userBtn).setChecked(true);
         }
+    }
+
+    private void calendarInit() {
+
+        Menstruation menstruation = mViewModel
+                .getLastMenstruationSaved(currentUser.getUserID());
+
+        LocalDate date;
+        if (menstruation == null) {
+            date = LocalDate.parse(currentUser.getFirstDay(), DateTimeFormatter.ofPattern("d/M/yyyy"));
+        } else {
+            date = LocalDate.parse(menstruation.getStartDay());
+        }
+
+        while (LocalDate.now().isAfter(date)) {
+            var startDay = date.toString();
+            var finishDay = date
+                    .plusDays(currentUser.getDurationMenstruation() - 1)
+                    .toString();
+
+            mViewModel.insertNewEvent(new Menstruation()
+                    .setUserID(currentUser.getUserID())
+                    .setStartDay(startDay)
+                    .setLastDay(finishDay));
+
+            CalendarUtils.lastMenstruation = date;
+
+            date = date.plusDays(currentUser.getDurationPeriod());
+
+        }
+
+        mViewModel.clearPrediction();
     }
 }

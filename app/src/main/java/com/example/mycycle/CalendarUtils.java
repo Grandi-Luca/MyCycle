@@ -15,6 +15,7 @@ import java.util.Optional;
 
 public class CalendarUtils {
     public static Optional<LocalDate> selectedDate;
+    public static LocalDate lastMenstruation;
 
     /**
      * Convert time from an initial format to another

@@ -15,4 +15,6 @@ public interface RemindersInterface {
     void cancelMedicineDailyNotification();
 
     boolean isMedicineReminderActive();
+
+    void setMenstruationTracking(Calendar calendar);
 }
