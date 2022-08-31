@@ -13,11 +13,13 @@ public class Note {
     @ColumnInfo (name = "note")
     public String note;
 
-    @ColumnInfo(name = "date")
+    @ColumnInfo (name = "date")
     public String date;
 
-    public Note() {
-    }
+    @ColumnInfo (name = "importance", defaultValue = "0")
+    public int importance;
+
+    public Note() {}
 
     public long getId() {
         return id;
@@ -43,6 +45,15 @@ public class Note {
 
     public Note setDate(String date) {
         this.date = date;
+        return this;
+    }
+
+    public int getImportance() {
+        return importance;
+    }
+
+    public Note setImportance(int importance) {
+        this.importance = importance;
         return this;
     }
 }

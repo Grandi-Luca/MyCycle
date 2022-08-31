@@ -7,9 +7,11 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.MutableLiveData;
 
 import com.example.mycycle.CalendarUtils;
 import com.example.mycycle.model.Menstruation;
+import com.example.mycycle.model.Note;
 import com.example.mycycle.model.User;
 import com.example.mycycle.repo.MenstruationRepository;
 import com.example.mycycle.repo.NoteRepository;
@@ -25,12 +27,13 @@ public class RepositoryViewModel extends AndroidViewModel {
 
     private final MenstruationRepository menstruationRepository;
     private final NoteRepository noteRepository;
-    private final Set<Menstruation> mPredict = new HashSet<>();
+    private final Set<Menstruation> mPredict;
 
     public RepositoryViewModel(@NonNull Application application) {
         super(application);
         menstruationRepository = new MenstruationRepository(application);
         noteRepository = new NoteRepository(application);
+        mPredict = new HashSet<>();
     }
 
     public void insertNewEvent(Menstruation menstruation) {
@@ -78,7 +81,26 @@ public class RepositoryViewModel extends AndroidViewModel {
         mPredict.clear();
     }
 
+    public Menstruation getNextMenstruationInfo(User user) {
+        for (var menstruation : mPredict) {
+            if(LocalDate.parse(getLastMenstruationSaved(user.getUserID())
+                            .getStartDay()).plusDays(user.getDurationPeriod())
+                    .isEqual(LocalDate.parse(menstruation.getStartDay()))) {
+                return menstruation;
+            }
+        }
+        return null;
+    }
+
+    public int getPredictionSetSize() {
+        return mPredict == null ? 0 : mPredict.size();
+    }
+
     public Menstruation getLastMenstruationSaved(String userID) {
         return menstruationRepository.getLastMenstruation(userID);
+    }
+
+    public List<Note> getNotes() {
+        return noteRepository.getNotes();
     }
 }

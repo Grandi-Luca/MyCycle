@@ -27,7 +27,6 @@ public class NotificationService implements NotificationServiceInterface, Remind
 
     private final Context context;
     private final FirebaseDAOUser daoUser;
-    private Activity activity;
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     public NotificationService(Context context) {

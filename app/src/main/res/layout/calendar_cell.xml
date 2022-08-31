@@ -29,6 +29,20 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.25" />
+
+        <View
+            android:id="@+id/noteIcon"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:visibility="gone"
+            android:background="@drawable/cell_today"
+            android:backgroundTint="@color/note_saved"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cellDayText"
+            app:layout_constraintVertical_bias="0.385" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

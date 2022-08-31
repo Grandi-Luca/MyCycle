@@ -46,12 +46,12 @@
         <entry key="app/src/main/res/layout/add_new_post_dialog.xml" value="0.22170562744140626" />
         <entry key="app/src/main/res/layout/answear_card.xml" value="0.23674468994140627" />
         <entry key="app/src/main/res/layout/calendar.xml" value="0.36302083333333335" />
-        <entry key="app/src/main/res/layout/calendar_cell.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/calendar_cell.xml" value="0.29506120726044743" />
         <entry key="app/src/main/res/layout/each_child_item.xml" value="0.29884566053869177" />
         <entry key="app/src/main/res/layout/each_parent_item.xml" value="0.29884566053869177" />
         <entry key="app/src/main/res/layout/fab_add.xml" value="0.3640625" />
-        <entry key="app/src/main/res/layout/fragment_calendar.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.29506120726044743" />
+        <entry key="app/src/main/res/layout/fragment_calendar.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/fragment_dashboard.xml" value="0.17979610750695088" />
         <entry key="app/src/main/res/layout/fragment_forum.xml" value="0.27516817677576555" />
         <entry key="app/src/main/res/layout/fragment_profile.xml" value="0.24003707136237257" />
         <entry key="app/src/main/res/layout/list_dialog.xml" value="0.29506120726044743" />

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".DashboardFragment">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/primaryCard"
         android:layout_width="match_parent"
         android:layout_height="168dp"
@@ -31,31 +31,31 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="mestruazioni"
+                android:text="Mestruazioni"
                 android:textColor="@color/white"
-                android:textStyle="bold"
-                android:textSize="18sp" />
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-            <TextView
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/titlePrimaryCard"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="X° giorno"
                 android:textColor="@color/white"
-                android:textStyle="bold"
-                android:textSize="34sp" />
+                android:textSize="34sp"
+                android:textStyle="bold" />
 
             <TextView
+                android:id="@+id/subTitlePrimaryCard"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="12 giu - Pross mestruazioni"
                 android:textColor="@color/white"
                 android:textSize="16sp" />
 
         </com.google.android.flexbox.FlexboxLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/secondaryCard"
         android:layout_width="match_parent"
         android:layout_height="168dp"
@@ -76,24 +76,26 @@
             app:showDividerHorizontal="middle">
 
             <TextView
+                android:id="@+id/secondaryTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="oggi"
+                android:textStyle="bold"
                 android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:textSize="30sp" />
 
             <TextView
+                android:id="@+id/event"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="nessun evento"
                 android:textColor="@color/white"
-                android:textStyle="bold"
-                android:textSize="30sp" />
+                android:textSize="16sp" />
 
 
         </com.google.android.flexbox.FlexboxLayout>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
 
 

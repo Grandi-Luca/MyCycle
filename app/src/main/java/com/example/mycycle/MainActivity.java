@@ -26,8 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
     public static User currentUser;
-    private FirebaseDAOUser daoUser;
-    private RepositoryViewModel mViewModel;
+    public static RepositoryViewModel mViewModel;
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -37,13 +36,14 @@ public class MainActivity extends AppCompatActivity {
 
         mViewModel = new RepositoryViewModel(this.getApplication());
 
-        daoUser = new FirebaseDAOUser();
+        FirebaseDAOUser daoUser = new FirebaseDAOUser();
         daoUser.getCurrentUserInfo().addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 var user = snapshot.getValue(User.class);
                 if (user != null) {
                     currentUser = user.setUserID(snapshot.getKey());
+                    replaceFragment(new DashboardFragment());
                     calendarInit();
                 }
             }
@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setContentView(binding.getRoot());
-        replaceFragment(new DashboardFragment());
 
         binding.bottomNavigationView.setOnItemSelectedListener(item -> {
 
@@ -96,13 +95,13 @@ public class MainActivity extends AppCompatActivity {
         mBottomNavigationView.getMenu().setGroupCheckable(0, true, true);
 
 //        check the correct item on bottom navigation menu based on current fragment
-        if(fragment.getClass().getName() == DashboardFragment.class.getName()){
+        if(fragment.getClass().getName().equals(DashboardFragment.class.getName())){
             mBottomNavigationView.getMenu().findItem(R.id.homeBtn).setChecked(true);
-        } else if(fragment.getClass().getName() == CalendarFragment.class.getName()){
+        } else if(fragment.getClass().getName().equals(CalendarFragment.class.getName())){
             mBottomNavigationView.getMenu().findItem(R.id.calendarBtn).setChecked(true);
-        } else if(fragment.getClass().getName() == ForumFragment.class.getName()){
+        } else if(fragment.getClass().getName().equals(ForumFragment.class.getName())){
             mBottomNavigationView.getMenu().findItem(R.id.forumBtn).setChecked(true);
-        } else if(fragment.getClass().getName() == ProfileFragment.class.getName()){
+        } else if(fragment.getClass().getName().equals(ProfileFragment.class.getName())){
             mBottomNavigationView.getMenu().findItem(R.id.userBtn).setChecked(true);
         }
     }
@@ -137,5 +136,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         mViewModel.clearPrediction();
+
+        mViewModel.getPredictedMenstruation(currentUser, LocalDate.now());
     }
 }

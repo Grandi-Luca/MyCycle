@@ -7,9 +7,11 @@ import static com.example.mycycle.MainActivity.currentUser;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
@@ -28,21 +30,22 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class CalendarFragment extends Fragment implements OnItemListener {
 
     private TextView monthYearText;
     private RecyclerView calendarRecyclerView;
-    private boolean isAllFABVisible;
+    private boolean isAllFABVisible, importance;
 
     private NoteAdapter adapter;
 
     private FloatingActionButton noteFAB;
     private FloatingActionButton infoFAB;
-    private FloatingActionButton editFAB;
 
     private NoteRepository noteRepository;
 
@@ -64,7 +67,7 @@ public class CalendarFragment extends Fragment implements OnItemListener {
         View view = inflater.inflate(R.layout.fragment_calendar, container, false);
 
         noteRepository = new NoteRepository(getActivity().getApplication());
-        mViewModel = new RepositoryViewModel(getActivity().getApplication());
+        mViewModel = MainActivity.mViewModel;
 
         adapter = new NoteAdapter();
 
@@ -91,7 +94,6 @@ public class CalendarFragment extends Fragment implements OnItemListener {
         calendarRecyclerView = v.findViewById(R.id.calendarRecyclerView);
         monthYearText = v.findViewById(R.id.monthYearTV);
 
-        editFAB = v.findViewById(R.id.editFab);
         infoFAB = v.findViewById(R.id.infoFab);
         noteFAB = v.findViewById(R.id.noteFab);
 
@@ -120,16 +122,32 @@ public class CalendarFragment extends Fragment implements OnItemListener {
 
         noteFAB.setOnClickListener(view -> {
             Dialog dialog = new Dialog(getActivity());
+            importance = false;
             Utils.showDialog(dialog,
                     R.layout.add_new_note_dialog,
                     R.style.dialog_down_top_swipe_animation);
 
+            ImageButton importantSwitch = dialog.findViewById(R.id.importance);
+            importantSwitch.setOnClickListener(d -> {
+                importance = !importance;
+                importantSwitch.setImageResource(importance ? R.drawable.ic_round_star_24 :
+                        R.drawable.ic_round_star_outline_24);
+            });
+
             dialog.findViewById(R.id.addButton).setOnClickListener(v1 -> {
                 TextView text = dialog.findViewById(R.id.description);
-                noteRepository.insertNote(new Note()
+                if(text.getText().toString().isEmpty()) {
+                    return;
+                }
+                var note = new Note()
                         .setNote(text.getText().toString())
-                        .setDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))));
+                        .setDate(selectedDate.get().toString());
+                if(importance) {
+                    note.setImportance(1);
+                }
+                noteRepository.insertNote(note);
                 dialog.dismiss();
+                updateMonthView(selectedDate.get());
             });
             hideAll();
             isAllFABVisible = false;
@@ -165,8 +183,10 @@ public class CalendarFragment extends Fragment implements OnItemListener {
 
         var listPredicted = mViewModel.getPredictedMenstruation(currentUser, date);
 
+        var listNote = mViewModel.getNotes();
+
         CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth,
-                this, listActual, listPredicted);
+                this, listActual, listPredicted, listNote);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(requireContext().getApplicationContext(), 7);
         calendarRecyclerView.setLayoutManager(layoutManager);
         calendarRecyclerView.setAdapter(calendarAdapter);
@@ -200,7 +220,10 @@ public class CalendarFragment extends Fragment implements OnItemListener {
 
     private boolean loadNotes() {
         if(selectedDate.isPresent()) {
-            var notes = noteRepository.getNotes(selectedDate.get().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+            var notes = noteRepository.getNotes()
+                    .stream()
+                    .filter(e -> LocalDate.parse(e.getDate()).isEqual(selectedDate.get()))
+                    .collect(Collectors.toList());
             adapter.setNotes(notes);
             return notes.size() > 0;
         }
@@ -210,13 +233,11 @@ public class CalendarFragment extends Fragment implements OnItemListener {
     private void hideAll() {
         infoFAB.hide();
         noteFAB.hide();
-        editFAB.hide();
     }
 
     private void showAll() {
         infoFAB.show();
         noteFAB.show();
-        editFAB.show();
     }
 
 }

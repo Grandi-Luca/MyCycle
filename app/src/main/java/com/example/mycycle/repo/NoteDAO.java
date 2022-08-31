@@ -13,9 +13,12 @@ public interface NoteDAO {
     @Insert
     void insertNote(Note note);
 
-    @Query("SELECT * FROM Note WHERE date LIKE '%' || :date  || '%'")
-    List<Note> getNotes(String date);
+    @Query("SELECT * FROM Note")
+    List<Note> getNotes();
 
     @Query("DELETE FROM Note")
     void deleteAll();
+
+    @Query("SELECT * FROM Note WHERE importance > 0")
+    List<Note> getImportantNote();
 }

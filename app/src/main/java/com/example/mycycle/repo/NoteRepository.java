@@ -20,12 +20,16 @@ public class NoteRepository {
         MyDatabase.executor.execute(() -> noteDAO.insertNote(note));
     }
 
-    public List<Note> getNotes(String date) {
-        return noteDAO.getNotes(date);
+    public List<Note> getNotes() {
+        return noteDAO.getNotes();
     }
 
     public void deleteAll() {
         noteDAO.deleteAll();
+    }
+
+    public List<Note> getImportantNote() {
+        return noteDAO.getImportantNote();
     }
 
 }

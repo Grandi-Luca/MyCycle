@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.mycycle.CalendarUtils;
 import com.example.mycycle.R;
 import com.example.mycycle.model.Menstruation;
+import com.example.mycycle.model.Note;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -22,16 +23,19 @@ import java.util.List;
 public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.CalendarViewHolder> {
     private List<LocalDate> days;
     private final OnItemListener onItemListener;
-    private List<Menstruation> menstruationList;
-    private List<Menstruation> predictedList;
+    private final List<Menstruation> menstruationList;
+    private final List<Menstruation> predictedList;
+    private List<Note> noteList;
 
     public CalendarAdapter(List<LocalDate> days,
                            OnItemListener onItemListener,
-                           List<Menstruation> menstruationList, List<Menstruation> predictedList) {
+                           List<Menstruation> menstruationList, List<Menstruation> predictedList,
+                           List<Note> noteList) {
         this.days = days;
         this.onItemListener = onItemListener;
         this.menstruationList = menstruationList;
         this.predictedList = predictedList;
+        this.noteList = noteList;
     }
 
     @NonNull
@@ -54,9 +58,14 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             holder.getDayOfMonth().setText("");
         }
         else {
-
             holder.getDayOfMonth().setText(String.valueOf(date.getDayOfMonth()));
             LocalDate actual = CalendarUtils.selectedDate.orElseGet(LocalDate::now);
+
+            for (var note : noteList) {
+                if(date.isEqual(LocalDate.parse(note.getDate()))) {
+                    holder.noteIcon.setVisibility(View.VISIBLE);
+                }
+            }
 
             for (var day : menstruationList) {
                 LocalDate start = LocalDate.parse(day.getStartDay());
@@ -97,7 +106,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
 
     static class CalendarViewHolder extends RecyclerView.ViewHolder{
 
-        private final View parentView, background;
+        private final View parentView, background, noteIcon;
         private final TextView dayOfMonth;
 
         public CalendarViewHolder(@NonNull View itemView, OnItemListener onItemListener,
@@ -106,6 +115,7 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
             parentView = itemView.findViewById(R.id.parentView);
             dayOfMonth = itemView.findViewById(R.id.cellDayText);
             background = itemView.findViewById(R.id.background);
+            noteIcon = itemView.findViewById(R.id.noteIcon);
 
             itemView.setOnClickListener((View v)->{
                 onItemListener.onItemClick(getAdapterPosition(), days.get(getAdapterPosition()));

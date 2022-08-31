@@ -187,10 +187,19 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
                 if (user != null) {
                     currentUser = user.setUserID(snapshot.getKey());
 
+                    String mDuration = currentUser.getDurationMenstruation() +
+                            (currentUser.getDurationMenstruation() != 1 ?
+                             " giorni"
+                            : " giorno");
+
+                    String pDuration = currentUser.getDurationPeriod() +
+                            (currentUser.getDurationPeriod() != 1 ?
+                                    " giorni"
+                                    : " giorno");
                     // set profile filed
                     nickname.setText(currentUser.getNickname());
-                    menstruationDuration.setText(String.valueOf(currentUser.getDurationMenstruation()));
-                    periodDuration.setText(String.valueOf(currentUser.getDurationPeriod()));
+                    menstruationDuration.setText(mDuration);
+                    periodDuration.setText(pDuration);
 
                     var activity = getActivity();
                     if (activity != null) {
