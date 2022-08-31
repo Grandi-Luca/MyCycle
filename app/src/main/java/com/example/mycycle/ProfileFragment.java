@@ -4,17 +4,18 @@ import static com.example.mycycle.MainActivity.currentUser;
 import static com.example.mycycle.Utils.isUserLogin;
 import static com.example.mycycle.Utils.showDialog;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +29,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -57,14 +60,13 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("SameParameterValue")
+@SuppressWarnings({"SameParameterValue", "StatementWithEmptyBody"})
 public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemListener {
     FirebaseDAOUser daoUser;
     private DAOPost dao;
@@ -74,7 +76,6 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
     SwitchMaterial medicineReminderSwitch;
     SwitchMaterial menstruationReminderSwitch;
 
-
     private TextView nickname, menstruationDuration, periodDuration;
     private EditText dialogNickname, dialogDurationMenstruation, dialogDurationPeriod;
     private ImageView profilePicture, dialogProfilePicture;
@@ -83,6 +84,7 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
     private ReplyAdapter replyAdapter;
 
     private Uri uriProfileImage;
+
 
     private final ActivityResultLauncher<Intent> galleryLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -105,6 +107,38 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
 
                         uriProfileImage = getImageUri(getContext(), imageBitmap);
                         dialogProfilePicture.setImageURI(uriProfileImage);
+                }
+            });
+
+    private final ActivityResultLauncher<String> requestCameraPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Permission is granted. Continue the action or workflow in your
+                    // app.
+                    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    cameraLauncher.launch(takePictureIntent);
+                } else {
+                    // Explain to the user that the feature is unavailable because the
+                    // features requires a permission that the user has denied. At the
+                    // same time, respect the user's decision. Don't link to system
+                    // settings in an effort to convince the user to change their
+                    // decision.
+                }
+            });
+
+    private final ActivityResultLauncher<String> requestStoragePermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Permission is granted. Continue the action or workflow in your
+                    // app.
+                    Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    galleryLauncher.launch(galleryIntent);
+                } else {
+                    // Explain to the user that the feature is unavailable because the
+                    // features requires a permission that the user has denied. At the
+                    // same time, respect the user's decision. Don't link to system
+                    // settings in an effort to convince the user to change their
+                    // decision.
                 }
             });
 
@@ -266,13 +300,37 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
 
         // load image from gallery
         dialog.findViewById(R.id.buttonLoadPicture).setOnClickListener(view -> {
-            Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            galleryLauncher.launch(galleryIntent);
+            if(ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                // permission storage granted
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                galleryLauncher.launch(galleryIntent);
+
+            } else if(ActivityCompat.shouldShowRequestPermissionRationale(
+                    getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                // Additional rationale should be displayed
+                requestStoragePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+            } else {
+                // Permission has not been asked yet
+                requestStoragePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
         });
 
         dialog.findViewById(R.id.buttonTakePicture).setOnClickListener(view -> {
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            cameraLauncher.launch(takePictureIntent);
+            if(ContextCompat.checkSelfPermission(getContext(),
+                    Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                // permission camera granted
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                cameraLauncher.launch(takePictureIntent);
+
+            } else if(ActivityCompat.shouldShowRequestPermissionRationale(
+                    getActivity(), Manifest.permission.CAMERA)) {
+                // Additional rationale should be displayed
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+            } else {
+                // Permission has not been asked yet
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+            }
         });
 
         dialog.findViewById(R.id.save).setOnClickListener(view -> {
@@ -550,4 +608,5 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
             notificationService.updateMenstruationNotification(calendar);
         }
     }
+
 }
