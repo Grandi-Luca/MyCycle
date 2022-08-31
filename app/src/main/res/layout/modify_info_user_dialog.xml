@@ -56,12 +56,33 @@
                         android:layout_width="100dp"
                         android:layout_height="100dp" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/buttonLoadPicture"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="20dp"
-                        android:text="Load Picture" />
+                        android:orientation="horizontal"
+                        android:layout_marginTop="20dp">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/buttonLoadPicture"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="20dp"
+                            android:backgroundTint="@color/primary_dark"
+                            android:text="Load Picture" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/buttonTakePicture"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:layout_marginStart="20dp"
+                            android:textColor="@color/primary_dark"
+                            android:background="?android:selectableItemBackground"
+                            android:text="take picture" />
+
+                    </LinearLayout>
+
 
                 </com.google.android.flexbox.FlexboxLayout>
 
@@ -233,7 +254,7 @@
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/primary"
                 android:text="@string/save"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />

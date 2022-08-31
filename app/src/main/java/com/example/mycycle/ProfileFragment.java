@@ -7,7 +7,9 @@ import static com.example.mycycle.Utils.showDialog;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -41,7 +43,7 @@ import com.example.mycycle.model.ReplyItem;
 import com.example.mycycle.model.User;
 import com.example.mycycle.repo.DAOPost;
 import com.example.mycycle.repo.FirebaseDAOUser;
-import com.example.mycycle.repo.MenstruationRepository;
+import com.example.mycycle.viewModel.RepositoryViewModel;
 import com.example.mycycle.worker.AlarmReceiver;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.Task;
@@ -53,9 +55,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -64,9 +68,12 @@ import java.util.stream.Collectors;
 public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemListener {
     FirebaseDAOUser daoUser;
     private DAOPost dao;
+    private RepositoryViewModel viewModel;
 
     RemindersInterface notificationService;
     SwitchMaterial medicineReminderSwitch;
+    SwitchMaterial menstruationReminderSwitch;
+
 
     private TextView nickname, menstruationDuration, periodDuration;
     private EditText dialogNickname, dialogDurationMenstruation, dialogDurationPeriod;
@@ -77,17 +84,29 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
 
     private Uri uriProfileImage;
 
-    private final ActivityResultLauncher<Intent> launcher = registerForActivityResult(
+    private final ActivityResultLauncher<Intent> galleryLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-    result -> {
-        if (result.getResultCode() == Activity.RESULT_OK
-                && result.getData() != null) {
-                uriProfileImage = result.getData().getData();
-            if(dialogProfilePicture != null) {
-                dialogProfilePicture.setImageURI(uriProfileImage);
-            }
-        }
-    });
+            result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK
+                            && result.getData() != null) {
+                        uriProfileImage = result.getData().getData();
+                        if(dialogProfilePicture != null) {
+                            dialogProfilePicture.setImageURI(uriProfileImage);
+                        }
+                    }
+            });
+
+    private final ActivityResultLauncher<Intent> cameraLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK
+                        && result.getData() != null) {
+                    Bitmap imageBitmap = (Bitmap) result.getData().getExtras().get("data");
+
+                        uriProfileImage = getImageUri(getContext(), imageBitmap);
+                        dialogProfilePicture.setImageURI(uriProfileImage);
+                }
+            });
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -106,6 +125,7 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        viewModel = MainActivity.mViewModel;
         daoUser = new FirebaseDAOUser();
         this.questionAdapter = new QuestionAdapter(getActivity(), this);
         this.replyAdapter = new ReplyAdapter(getActivity());
@@ -140,7 +160,7 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
             }
         });
 
-        SwitchMaterial menstruationReminderSwitch = view.findViewById(R.id.menstruationReminderSwitch);
+        menstruationReminderSwitch = view.findViewById(R.id.menstruationReminderSwitch);
         menstruationReminderSwitch.setChecked(notificationService.isMenstruationReminderActive());
         menstruationReminderSwitch.setOnClickListener(v -> {
             if(menstruationReminderSwitch.isChecked()){
@@ -247,7 +267,12 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
         // load image from gallery
         dialog.findViewById(R.id.buttonLoadPicture).setOnClickListener(view -> {
             Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            launcher.launch(galleryIntent);
+            galleryLauncher.launch(galleryIntent);
+        });
+
+        dialog.findViewById(R.id.buttonTakePicture).setOnClickListener(view -> {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            cameraLauncher.launch(takePictureIntent);
         });
 
         dialog.findViewById(R.id.save).setOnClickListener(view -> {
@@ -354,10 +379,12 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
                                     AlarmReceiver.menstruationDuration = Integer.parseInt(
                                             dialogDurationMenstruation.getText().toString());
 
-                                    notificationService.cancelMenstruationNotification();
+                                    updateMenstruationNotification();
 
                                 }
                             });
+                } else {
+                    updateMenstruationNotification();
                 }
 
             }
@@ -498,5 +525,29 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
 
             }
         });
+    }
+
+    private Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.
+                insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
+    private void updateMenstruationNotification() {
+        if(menstruationReminderSwitch.isChecked()) {
+            Calendar calendar = Calendar.getInstance();
+            var date = LocalDate
+                    .parse(viewModel
+                            .getLastMenstruationSaved(daoUser.getCurrentUid())
+                            .getStartDay());
+            calendar.set(Calendar.YEAR, date.getYear());
+            calendar.set(Calendar.MONTH, date.getMonthValue() - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
+            calendar.add(Calendar.MINUTE, 5);
+            calendar.set(Calendar.SECOND, 0);
+            notificationService.updateMenstruationNotification(calendar);
+        }
     }
 }

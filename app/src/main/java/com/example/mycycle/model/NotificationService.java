@@ -155,52 +155,9 @@ public class NotificationService implements NotificationServiceInterface, Remind
     }
 
     @Override
-    public void setMenstruationTracking(Calendar calendar) {
-        Calendar cur = Calendar.getInstance();
-
-        // add x days if time selected is before system time
-        if (cur.after(calendar)) {
-
-            if(AlarmReceiver.menstruationPeriod <= 0) {
-                daoUser.getCurrentUserInfo()
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                var currentUser = snapshot.getValue(User.class);
-                                AlarmReceiver.menstruationPeriod = currentUser.getDurationPeriod();
-                                AlarmReceiver.menstruationDuration = currentUser.getDurationMenstruation();
-
-                                calendar.add(Calendar.DATE, AlarmReceiver.menstruationPeriod);
-
-                                PendingIntent pendingIntent = getPendingIntent(
-                                        new Intent(context, AlarmReceiver.class)
-                                                .putExtra(AlarmReceiver.YEAR, calendar.get(Calendar.YEAR))
-                                                .putExtra(AlarmReceiver.MONTH, calendar.get(Calendar.MONTH))
-                                                .putExtra(AlarmReceiver.DAY, calendar.get(Calendar.DAY_OF_MONTH)),
-                                        AlarmReceiver.MENSTRUATION_TRACKING_ID);
-
-                                launchExactAlarmManager(pendingIntent, calendar);
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
-                return;
-            }
-
-            calendar.add(Calendar.DATE, AlarmReceiver.menstruationPeriod);
-        }
-
-        PendingIntent pendingIntent = getPendingIntent(
-                new Intent(context, AlarmReceiver.class)
-                        .putExtra(AlarmReceiver.YEAR, calendar.get(Calendar.YEAR))
-                        .putExtra(AlarmReceiver.MONTH, calendar.get(Calendar.MONTH))
-                        .putExtra(AlarmReceiver.DAY, calendar.get(Calendar.DAY_OF_MONTH)),
-                AlarmReceiver.MENSTRUATION_TRACKING_ID);
-
-        launchExactAlarmManager(pendingIntent, calendar);
+    public void updateMenstruationNotification(Calendar calendar) {
+        cancelNotification(AlarmReceiver.MENSTRUATION_NOTIFICATION_ID);
+        setMenstruationNotification(calendar);
     }
 
     private void launchExactAlarmManager(PendingIntent pendingIntent, Calendar calendar) {

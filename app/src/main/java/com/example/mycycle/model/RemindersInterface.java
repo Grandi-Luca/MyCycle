@@ -16,5 +16,5 @@ public interface RemindersInterface {
 
     boolean isMedicineReminderActive();
 
-    void setMenstruationTracking(Calendar calendar);
+    void updateMenstruationNotification(Calendar calendar);
 }

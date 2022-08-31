@@ -4,7 +4,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -25,21 +29,27 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.mycycle.model.Menstruation;
 import com.example.mycycle.model.NotificationService;
 import com.example.mycycle.model.User;
-import com.example.mycycle.repo.MenstruationRepository;
 import com.example.mycycle.worker.AlarmReceiver;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 public class RegisterUser extends AppCompatActivity {
@@ -53,7 +63,7 @@ public class RegisterUser extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
 
-    private final ActivityResultLauncher<Intent> launcher = registerForActivityResult(
+    private final ActivityResultLauncher<Intent> galleryLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK
@@ -62,6 +72,19 @@ public class RegisterUser extends AppCompatActivity {
                     imageView.setImageURI(result.getData().getData());
 
                     uriProfileImage = result.getData().getData();
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> cameraLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK
+                        && result.getData() != null) {
+                    Bitmap imageBitmap = (Bitmap) result.getData().getExtras().get("data");
+
+                    uriProfileImage = getImageUri(RegisterUser.this, imageBitmap);
+                    ImageView imageView = findViewById(R.id.profileImage);
+                    imageView.setImageURI(uriProfileImage);
                 }
             });
 
@@ -108,7 +131,13 @@ public class RegisterUser extends AppCompatActivity {
         // load image from gallery
         findViewById(R.id.buttonLoadPicture).setOnClickListener(view -> {
             Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            launcher.launch(galleryIntent);
+            galleryLauncher.launch(galleryIntent);
+        });
+
+
+        findViewById(R.id.buttonTakePicture).setOnClickListener(view -> {
+            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+            cameraLauncher.launch(takePictureIntent);
         });
 
         findViewById(R.id.register).setOnClickListener(view -> registerUser());
@@ -253,33 +282,17 @@ public class RegisterUser extends AppCompatActivity {
                                             notificationService.setMedicineDailyNotification(calendar);
                                         }
 
-//                                        var curTime = Calendar.getInstance();
-//                                        calendar = Calendar.getInstance();
-//                                        var date = LocalDate.parse(eLastTime.getText().toString(),
-//                                                DateTimeFormatter.ofPattern("d/M/yyyy"));
-//                                        calendar.set(Calendar.YEAR, date.getYear());
-//                                        calendar.set(Calendar.MONTH, date.getMonthValue() - 1);
-//                                        calendar.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
-//                                        calendar.add(Calendar.MINUTE, 5);
-//                                        calendar.set(Calendar.SECOND, 0);
-//                                        notificationService.setMenstruationNotification(calendar);
-//
-//                                        var repo = new MenstruationRepository(this);
-//                                        while(curTime.after(calendar)) {
-//
-//                                            var startDay = LocalDate.of(calendar.get(Calendar.YEAR),
-//                                                    calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)).toString();
-//                                            calendar.add(Calendar.DAY_OF_MONTH, Integer.parseInt(editDurationMenstruation.getText().toString()));
-//                                            var lastDay = LocalDate.of(calendar.get(Calendar.YEAR),
-//                                                    calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)).toString();
-//
-//                                            repo.insert(new Menstruation()
-//                                                    .setStartDay(startDay)
-//                                                    .setLastDay(lastDay)
-//                                                    .setUserID(FirebaseAuth.getInstance().getCurrentUser().getUid()));
-//
-//                                            calendar.add(Calendar.DAY_OF_MONTH, Integer.parseInt(editDurationPeriod.getText().toString()));
-//                                        }
+                                        var curTime = Calendar.getInstance();
+                                        calendar = Calendar.getInstance();
+                                        var date = LocalDate.parse(eLastTime.getText().toString(),
+                                                DateTimeFormatter.ofPattern("d/M/yyyy"));
+                                        calendar.set(Calendar.YEAR, date.getYear());
+                                        calendar.set(Calendar.MONTH, date.getMonthValue() - 1);
+                                        calendar.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
+                                        calendar.add(Calendar.MINUTE, 5);
+                                        calendar.set(Calendar.SECOND, 0);
+                                        notificationService.setMenstruationNotification(calendar);
+
                                     });
                                 });
 
@@ -300,5 +313,13 @@ public class RegisterUser extends AppCompatActivity {
             return true;
         }
         return false;
+    }
+
+    private Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.
+                insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
 }

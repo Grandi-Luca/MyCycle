@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
         mViewModel = new RepositoryViewModel(this.getApplication());
 
         FirebaseDAOUser daoUser = new FirebaseDAOUser();
-        daoUser.getCurrentUserInfo().addValueEventListener(new ValueEventListener() {
+        daoUser.getCurrentUserInfo().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 var user = snapshot.getValue(User.class);
