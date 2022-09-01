@@ -7,7 +7,6 @@ import static com.example.mycycle.MainActivity.currentUser;
 
 import android.app.Dialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,19 +19,19 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mycycle.adapter.CalendarAdapter;
-import com.example.mycycle.adapter.NoteAdapter;
 import com.example.mycycle.adapter.CalendarAdapter.OnItemListener;
+import com.example.mycycle.adapter.NoteAdapter;
 import com.example.mycycle.model.Menstruation;
 import com.example.mycycle.model.Note;
+import com.example.mycycle.repo.FirebaseDAOUser;
 import com.example.mycycle.repo.NoteRepository;
 import com.example.mycycle.viewModel.RepositoryViewModel;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -50,6 +49,7 @@ public class CalendarFragment extends Fragment implements OnItemListener {
     private NoteRepository noteRepository;
 
     private RepositoryViewModel mViewModel;
+    private FirebaseDAOUser uDAO;
 
     public CalendarFragment() {
     }
@@ -68,22 +68,26 @@ public class CalendarFragment extends Fragment implements OnItemListener {
 
         noteRepository = new NoteRepository(getActivity().getApplication());
         mViewModel = MainActivity.mViewModel;
+        uDAO = new FirebaseDAOUser();
 
         adapter = new NoteAdapter();
 
         initWidgets(view);
 
-        Menstruation menstruation = mViewModel
-                .getLastMenstruationSaved(currentUser.getUserID());
-        LocalDate date;
-        if (menstruation == null) {
-            date = LocalDate.parse(currentUser.getFirstDay(), DateTimeFormatter.ofPattern("d/M/yyyy"));
-        } else {
-            date = LocalDate.parse(menstruation.getStartDay());
-        }
+            Menstruation menstruation = mViewModel
+                    .getLastMenstruationSaved(uDAO.getCurrentUid());
+            LocalDate date;
+            if (menstruation == null) {
+                if(currentUser != null) {
+                    date = LocalDate.parse(currentUser.getFirstDay(), DateTimeFormatter.ofPattern("d/M/yyyy"));
+                    CalendarUtils.lastMenstruation = date;
+                }
+            } else {
+                date = LocalDate.parse(menstruation.getStartDay());
+                CalendarUtils.lastMenstruation = date;
+            }
 
         CalendarUtils.selectedDate = Optional.ofNullable(LocalDate.now());
-        CalendarUtils.lastMenstruation = date;
 
         updateMonthView(LocalDate.now());
 
@@ -178,11 +182,13 @@ public class CalendarFragment extends Fragment implements OnItemListener {
         ArrayList<LocalDate> daysInMonth = daysInMonthArray(date);
 
         var listActual =
-                mViewModel.getMonthlyMenstruationEvent(currentUser,
+                mViewModel.getMonthlyMenstruationEvent(uDAO.getCurrentUid(),
                         date);
 
-        var listPredicted = mViewModel.getPredictedMenstruation(currentUser, date);
-
+        List<Menstruation> listPredicted = new ArrayList<>();
+        if(currentUser != null) {
+            listPredicted = mViewModel.getPredictedMenstruation(currentUser, date);
+        }
         var listNote = mViewModel.getNotes();
 
         CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth,
@@ -196,10 +202,12 @@ public class CalendarFragment extends Fragment implements OnItemListener {
         LocalDate date = CalendarUtils.selectedDate.orElseGet(LocalDate::now);
 
         CalendarUtils.selectedDate = Optional.ofNullable(date.minusMonths(1));
-        CalendarUtils.lastMenstruation =
-                LocalDate.parse(mViewModel
-                        .getLastMenstruationSaved(currentUser.getUserID())
-                        .getStartDay());
+        if(currentUser != null) {
+            CalendarUtils.lastMenstruation =
+                    LocalDate.parse(mViewModel
+                            .getLastMenstruationSaved(currentUser.getUserID())
+                            .getStartDay());
+        }
         updateMonthView(date.minusMonths(1));
     }
 

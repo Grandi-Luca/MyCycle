@@ -1,6 +1,7 @@
 package com.example.mycycle;
 
 import static com.example.mycycle.MainActivity.currentUser;
+import static com.example.mycycle.Utils.isInternetConnected;
 import static com.example.mycycle.Utils.isUserLogin;
 import static com.example.mycycle.Utils.showDialog;
 
@@ -225,8 +226,15 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
         MaterialCardView card = view.findViewById(R.id.accountInfo);
         if (card != null) {
             card.setOnClickListener(v -> {
-                if (currentUser != null) {
+                if (currentUser != null && isInternetConnected(getContext())) {
                     showModifyInfoUserDialog();
+                } else {
+                    if (getContext() != null) {
+                        Toast.makeText(getContext(),
+                                        "No internet connection",
+                                        Toast.LENGTH_SHORT)
+                                .show();
+                    }
                 }
             });
         }

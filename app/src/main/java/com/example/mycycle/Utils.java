@@ -1,8 +1,11 @@
 package com.example.mycycle;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.view.Gravity;
 import android.view.Window;
 import android.view.WindowManager;
@@ -51,21 +54,16 @@ public class Utils {
         dialog.show();
     }
 
-    public enum Format {
-        TWENTY_FOUR_H_FORMAT("HH:mm:ss"),
-        TWELVE_H_FORMAT("hh:mm:ss a"),
-        FULL_DATE_FORMAT("d/M/yyyy"),
-        MONTH_YEAR_FORMAT("M/yyyy");
-
-        private String format;
-
-        Format(String format) {
-            this.format = format;
+    public static boolean isInternetConnected(Context context) {
+        if(context != null) {
+            ConnectivityManager connectivityManager = (ConnectivityManager)
+                    context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            if (networkInfo != null) {
+                return  networkInfo.isConnected();
+            }
         }
-
-        public String getFormat() {
-            return format;
-        }
+        return false;
     }
 
 }

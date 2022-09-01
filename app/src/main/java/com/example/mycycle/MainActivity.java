@@ -43,8 +43,8 @@ public class MainActivity extends AppCompatActivity {
                 var user = snapshot.getValue(User.class);
                 if (user != null) {
                     currentUser = user.setUserID(snapshot.getKey());
-                    replaceFragment(new DashboardFragment());
                     calendarInit();
+                    replaceFragment(new DashboardFragment());
                 }
             }
 

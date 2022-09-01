@@ -1,8 +1,12 @@
 package com.example.mycycle;
 
 import static com.example.mycycle.MainActivity.currentUser;
+import static com.example.mycycle.Utils.isInternetConnected;
 
 import android.app.Dialog;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -114,8 +118,18 @@ public class ForumFragment extends Fragment implements QuestionAdapter.OnItemLis
         });
 
         // show dialog to create a new post
-        view.findViewById(R.id.addFab).setOnClickListener(v ->
-                showAddNewQuestionDialog());
+        view.findViewById(R.id.addFab).setOnClickListener(v -> {
+            if(isInternetConnected(getContext())) {
+                showAddNewQuestionDialog();
+            } else {
+                if (getContext() != null) {
+                    Toast.makeText(getContext(),
+                                    "No internet connection",
+                                    Toast.LENGTH_SHORT)
+                            .show();
+                }
+            }
+        });
     }
 
     private void reloadQuestions(String query) {
@@ -199,12 +213,15 @@ public class ForumFragment extends Fragment implements QuestionAdapter.OnItemLis
                     .setTimestamp(-1 * new Date().getTime());
 
             daoPost.addQuestion(quest).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Toast.makeText(getActivity(), "Post has been added successfully",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(getActivity(), "Failed to submit new post! Try again",
-                            Toast.LENGTH_LONG).show();
+                var activity = getActivity();
+                if(activity != null) {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getActivity(), "Post has been added successfully",
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getActivity(), "Failed to submit new post! Try again",
+                                Toast.LENGTH_LONG).show();
+                    }
                 }
             });
             dialog.dismiss();
