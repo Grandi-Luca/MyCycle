@@ -7,7 +7,9 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.example.mycycle.databinding.ActivityMainBinding;
 import com.example.mycycle.model.Menstruation;
@@ -50,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
             }
         });
 
@@ -108,35 +109,37 @@ public class MainActivity extends AppCompatActivity {
 
     private void calendarInit() {
 
-        Menstruation menstruation = mViewModel
-                .getLastMenstruationSaved(currentUser.getUserID());
+        if(currentUser != null) {
+            Menstruation menstruation = mViewModel
+                    .getLastMenstruationSaved();
 
-        LocalDate date;
-        if (menstruation == null) {
-            date = LocalDate.parse(currentUser.getFirstDay(), DateTimeFormatter.ofPattern("d/M/yyyy"));
-        } else {
-            date = LocalDate.parse(menstruation.getStartDay());
+            LocalDate date;
+            if (menstruation == null) {
+                date = LocalDate.parse(currentUser.getFirstDay(), DateTimeFormatter.ofPattern("d/M/yyyy"));
+            } else {
+                date = LocalDate.parse(menstruation.getStartDay());
+            }
+
+            while (!date.isAfter(LocalDate.now())) {
+                var startDay = date.toString();
+                var finishDay = date
+                        .plusDays(currentUser.getDurationMenstruation() - 1)
+                        .toString();
+
+                mViewModel.insertNewEvent(new Menstruation()
+                        .setUserID(currentUser.getUserID())
+                        .setStartDay(startDay)
+                        .setLastDay(finishDay));
+
+                CalendarUtils.lastMenstruation = date;
+
+                date = date.plusDays(currentUser.getDurationPeriod());
+
+            }
+
+            mViewModel.clearPrediction();
+
+            var c = mViewModel.getPredictedMenstruation(currentUser, LocalDate.now());
         }
-
-        while (LocalDate.now().isAfter(date)) {
-            var startDay = date.toString();
-            var finishDay = date
-                    .plusDays(currentUser.getDurationMenstruation() - 1)
-                    .toString();
-
-            mViewModel.insertNewEvent(new Menstruation()
-                    .setUserID(currentUser.getUserID())
-                    .setStartDay(startDay)
-                    .setLastDay(finishDay));
-
-            CalendarUtils.lastMenstruation = date;
-
-            date = date.plusDays(currentUser.getDurationPeriod());
-
-        }
-
-        mViewModel.clearPrediction();
-
-        mViewModel.getPredictedMenstruation(currentUser, LocalDate.now());
     }
 }

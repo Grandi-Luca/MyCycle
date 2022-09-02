@@ -75,7 +75,7 @@ public class CalendarFragment extends Fragment implements OnItemListener {
         initWidgets(view);
 
             Menstruation menstruation = mViewModel
-                    .getLastMenstruationSaved(uDAO.getCurrentUid());
+                    .getLastMenstruationSaved();
             LocalDate date;
             if (menstruation == null) {
                 if(currentUser != null) {
@@ -118,6 +118,7 @@ public class CalendarFragment extends Fragment implements OnItemListener {
                 this.previousMonthAction();
             }
         });
+
         v.findViewById(R.id.nextMonth).setOnClickListener(view -> {
             if(!isAllFABVisible){
                 this.nextMonthAction();
@@ -144,12 +145,13 @@ public class CalendarFragment extends Fragment implements OnItemListener {
                     return;
                 }
                 var note = new Note()
+                        .setUserID(mViewModel.getUserID())
                         .setNote(text.getText().toString())
                         .setDate(selectedDate.get().toString());
                 if(importance) {
                     note.setImportance(1);
                 }
-                noteRepository.insertNote(note);
+                mViewModel.insertNote(note);
                 dialog.dismiss();
                 updateMonthView(selectedDate.get());
             });
@@ -193,7 +195,8 @@ public class CalendarFragment extends Fragment implements OnItemListener {
 
         CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth,
                 this, listActual, listPredicted, listNote);
-        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(requireContext().getApplicationContext(), 7);
+        RecyclerView.LayoutManager layoutManager =
+                new GridLayoutManager(requireContext().getApplicationContext(), 7);
         calendarRecyclerView.setLayoutManager(layoutManager);
         calendarRecyclerView.setAdapter(calendarAdapter);
     }
@@ -203,10 +206,12 @@ public class CalendarFragment extends Fragment implements OnItemListener {
 
         CalendarUtils.selectedDate = Optional.ofNullable(date.minusMonths(1));
         if(currentUser != null) {
-            CalendarUtils.lastMenstruation =
-                    LocalDate.parse(mViewModel
-                            .getLastMenstruationSaved(currentUser.getUserID())
-                            .getStartDay());
+            var menstruation = mViewModel
+                    .getLastMenstruationSaved();
+            if(menstruation != null) {
+                CalendarUtils.lastMenstruation =
+                        LocalDate.parse(menstruation.getStartDay());
+            }
         }
         updateMonthView(date.minusMonths(1));
     }
@@ -228,7 +233,7 @@ public class CalendarFragment extends Fragment implements OnItemListener {
 
     private boolean loadNotes() {
         if(selectedDate.isPresent()) {
-            var notes = noteRepository.getNotes()
+            var notes = mViewModel.getNotes()
                     .stream()
                     .filter(e -> LocalDate.parse(e.getDate()).isEqual(selectedDate.get()))
                     .collect(Collectors.toList());

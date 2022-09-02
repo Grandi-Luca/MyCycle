@@ -56,7 +56,8 @@ public class RegisterUser extends AppCompatActivity {
 
     private DatePickerDialog picker;
     private Uri uriProfileImage;
-    private EditText eLastTime, editPassword, editConfirmPassword, editEmail, editNickName, editDurationPeriod, editDurationMenstruation;
+    private EditText eLastTime, editPassword, editConfirmPassword, editEmail,
+            editNickName, editDurationPeriod, editDurationMenstruation;
     private TextView textClock;
     private TextClock clock;
     private CheckBox pill;
@@ -112,8 +113,6 @@ public class RegisterUser extends AppCompatActivity {
         this.editDurationMenstruation = findViewById(R.id.menstruationDuration);
         this.textClock = findViewById(R.id.textClock);
         this.pill = findViewById(R.id.pill);
-
-        this.uriProfileImage = Uri.parse("android.resource://com.example.mycycle/" + R.drawable.default_profile_image);
 
         eLastTime = findViewById(R.id.editText1);
         eLastTime.setInputType(InputType.TYPE_NULL);
@@ -217,9 +216,14 @@ public class RegisterUser extends AppCompatActivity {
             return;
         }
 
-        if(uriProfileImage.toString().trim().isEmpty()){
-            Toast.makeText(RegisterUser.this, "Choose a profile image", Toast.LENGTH_SHORT).show();
-            return;
+        if(uriProfileImage == null) {
+            this.uriProfileImage =
+                    Uri.parse("android.resource://com.example.mycycle/"
+                            + R.drawable.default_profile_image);
+        } else if(uriProfileImage.toString().trim().isEmpty()){
+            this.uriProfileImage =
+                    Uri.parse("android.resource://com.example.mycycle/"
+                            + R.drawable.default_profile_image);
         }
 
         // create new user and save in firebase realtime database
@@ -289,7 +293,8 @@ public class RegisterUser extends AppCompatActivity {
                                         calendar.set(Calendar.YEAR, date.getYear());
                                         calendar.set(Calendar.MONTH, date.getMonthValue() - 1);
                                         calendar.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
-                                        calendar.add(Calendar.MINUTE, 5);
+                                        calendar.set(Calendar.HOUR_OF_DAY, 9);
+                                        calendar.add(Calendar.MINUTE, 0);
                                         calendar.set(Calendar.SECOND, 0);
                                         notificationService.setMenstruationNotification(calendar);
 

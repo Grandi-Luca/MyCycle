@@ -4,10 +4,9 @@ import static com.example.mycycle.MainActivity.currentUser;
 import static com.example.mycycle.Utils.isInternetConnected;
 
 import android.app.Dialog;
-import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -90,28 +90,29 @@ public class ForumFragment extends Fragment implements QuestionAdapter.OnItemLis
         questionRecyclerView.setAdapter(questionAdapter);
         questionRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        reloadQuestions("");
+        loadQuestion();
 
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            reloadQuestions("");
             searchView.setQuery("", false);
+            loadQuestion();
             swipeRefreshLayout.setRefreshing(false);
         });
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                if(!query.trim().isEmpty()) {
-                    questionAdapter.clearAll();
-                    reloadQuestions(query);
+                if (!query.trim().isEmpty()) {
+                    search(query);
                 }
+                searchView.clearFocus();
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                if(newText.trim().isEmpty()) {
-                    reloadQuestions("");
+                if (newText.trim().isEmpty()) {
+                    loadQuestion();
+                    searchView.clearFocus();
                 }
                 return false;
             }
@@ -119,7 +120,7 @@ public class ForumFragment extends Fragment implements QuestionAdapter.OnItemLis
 
         // show dialog to create a new post
         view.findViewById(R.id.addFab).setOnClickListener(v -> {
-            if(isInternetConnected(getContext())) {
+            if (isInternetConnected(getContext())) {
                 showAddNewQuestionDialog();
             } else {
                 if (getContext() != null) {
@@ -132,64 +133,95 @@ public class ForumFragment extends Fragment implements QuestionAdapter.OnItemLis
         });
     }
 
-    private void reloadQuestions(String query) {
-        this.daoPost.get().addValueEventListener(new ValueEventListener() {
-
+    private void loadQuestion() {
+        daoPost.get().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                swipeRefreshLayout.setRefreshing(true);
-                if(snapshot.exists()) {
-                    questionAdapter.clearAll();
-                    List<QuestionItem> questionItemList = new ArrayList<>();
-                    for (var data : snapshot.getChildren()) {
-                        var item = data.getValue(QuestionItem.class);
-                        if(item != null) {
-                            item.setPostID(data.getKey());
-                            daoUser.getUserInfo(item.getUserID())
-                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                            var user = snapshot.getValue(User.class);
-                                            if (user != null) {
-                                                item.setNickname(user.getNickname())
-                                                        .setUri(user.getProfilePicture());
+                questionAdapter.clearAll();
+                for (var data : snapshot.getChildren()) {
+                    var item = data.getValue(QuestionItem.class);
+                    item.setPostID(data.getKey());
+                    daoUser.getUserInfo(item.getUserID())
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @RequiresApi(api = Build.VERSION_CODES.N)
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    var user = snapshot.getValue(User.class);
 
-                                                questionAdapter.notifyDataSetChanged();
-                                            }
+                                    if (!searchView.getQuery().toString().trim().isEmpty()) {
+                                        if (item.getQuestionTitle()
+                                                .contains(searchView
+                                                        .getQuery()
+                                                        .toString()) ||
+                                                item.getQuestionTitle()
+                                                        .contains(searchView
+                                                                .getQuery()
+                                                                .toString())) {
+                                            item.setNickname(user.getNickname())
+                                                    .setUri(user.getProfilePicture());
+                                            questionAdapter.addQuestion(item);
+                                            questionAdapter.notifyDataSetChanged();
                                         }
+                                    } else {
+                                        item.setNickname(user.getNickname())
+                                                .setUri(user.getProfilePicture());
+                                        questionAdapter.addQuestion(item);
+                                        questionAdapter.notifyDataSetChanged();
+                                    }
 
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError error) {
-                                            swipeRefreshLayout.setRefreshing(false);
-                                        }
-                                    });
+                                }
 
-                        }
-                        questionItemList.add(item);
-                    }
-                    if(!query.trim().isEmpty()) {
-                        questionAdapter.setQuestions(questionItemList
-                                .stream()
-                                .filter(e ->
-                                        e.getQuestionTitle().contains(query)
-                                                || e.getQuestionDescription().contains(query))
-                                .collect(Collectors.toList()));
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
 
-                    } else {
-                        questionAdapter.setQuestions(questionItemList);
-                    }
-                    questionAdapter.notifyDataSetChanged();
-                    swipeRefreshLayout.setRefreshing(false);
+                                }
+                            });
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                swipeRefreshLayout.setRefreshing(false);
+
             }
         });
+    }
 
-        swipeRefreshLayout.setRefreshing(false);
+    private void search(String query) {
+        daoPost.get().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                questionAdapter.clearAll();
+                for (var data : snapshot.getChildren()) {
+                    var item = data.getValue(QuestionItem.class);
+                    item.setPostID(data.getKey());
+                    daoUser.getUserInfo(item.getUserID())
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    var user = snapshot.getValue(User.class);
+                                    if (item.getQuestionDescription().contains(query)
+                                            || item.getQuestionTitle().contains(query)) {
+                                        item.setNickname(user.getNickname())
+                                                .setUri(user.getProfilePicture());
+                                        questionAdapter.addQuestion(item);
+                                        questionAdapter.notifyDataSetChanged();
+                                    }
+
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void showAddNewQuestionDialog() {
@@ -201,7 +233,7 @@ public class ForumFragment extends Fragment implements QuestionAdapter.OnItemLis
             var title = (EditText) dialog.findViewById(R.id.title);
             var description = (EditText) dialog.findViewById(R.id.questionDescription);
 
-            if(description.getText() == null || description.getText().toString().trim().isEmpty()){
+            if (description.getText() == null || description.getText().toString().trim().isEmpty()) {
                 return;
             }
 
@@ -214,10 +246,11 @@ public class ForumFragment extends Fragment implements QuestionAdapter.OnItemLis
 
             daoPost.addQuestion(quest).addOnCompleteListener(task -> {
                 var activity = getActivity();
-                if(activity != null) {
+                if (activity != null) {
                     if (task.isSuccessful()) {
                         Toast.makeText(getActivity(), "Post has been added successfully",
                                 Toast.LENGTH_SHORT).show();
+                        loadQuestion();
                     } else {
                         Toast.makeText(getActivity(), "Failed to submit new post! Try again",
                                 Toast.LENGTH_LONG).show();
@@ -248,24 +281,27 @@ public class ForumFragment extends Fragment implements QuestionAdapter.OnItemLis
         stub.inflate();
 
         SwipeRefreshLayout swipeRefreshLayout = dialog.findViewById(R.id.swipeLayout);
-        swipeRefreshLayout.setOnRefreshListener(() ->
-                swipeRefreshLayout.setRefreshing(false));
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            loadReplies(item.getPostID());
+            swipeRefreshLayout.setRefreshing(false);
+        });
 
         loadReplies(item.getPostID());
 
         dialog.findViewById(R.id.addButton).setOnClickListener(v -> {
             TextView dialogTextView = dialog.findViewById(R.id.newText);
-            if(dialogTextView  != null) {
+            if (dialogTextView != null && !dialogTextView.getText().toString().trim().isEmpty()) {
                 var reply = new ReplyItem()
-                    .setUserID(currentUser.getUserID())
-                    .setReply(dialogTextView.getText().toString())
-                    .setTimestamp(-1 * new Date().getTime());
+                        .setUserID(currentUser.getUserID())
+                        .setReply(dialogTextView.getText().toString())
+                        .setTimestamp(-1 * new Date().getTime());
 
                 daoPost.addReply(item.getPostID(), reply).addOnCompleteListener(task -> {
                     dialogTextView.setText("");
                     if (task.isSuccessful()) {
                         Toast.makeText(getActivity(), "Post has been added successfully",
                                 Toast.LENGTH_SHORT).show();
+                        loadReplies(item.getPostID());
                     } else {
                         Toast.makeText(getActivity(), "Failed to submit new post! Try again",
                                 Toast.LENGTH_LONG).show();
@@ -276,39 +312,29 @@ public class ForumFragment extends Fragment implements QuestionAdapter.OnItemLis
     }
 
     private void loadReplies(String key) {
-        replyAdapter.clearAll();
-        daoPost.getReplies(key).addValueEventListener(new ValueEventListener() {
+        daoPost.getReplies(key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()) {
-                    List<ReplyItem> replyItemList = new ArrayList<>();
-                    for (var data : snapshot.getChildren()) {
-                        var reply = data.getValue(ReplyItem.class);
+                replyAdapter.clearAll();
+                for (var data : snapshot.getChildren()) {
+                    var item = data.getValue(ReplyItem.class);
+                    item.setPostID(data.getKey());
+                    daoUser.getUserInfo(item.getUserID())
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    var user = snapshot.getValue(User.class);
 
-                        if (reply != null) {
-                            daoUser.getUserInfo(reply.getUserID())
-                                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                            var user = snapshot.getValue(User.class);
-                                            if (user != null) {
-                                                reply.setNickname(user.getNickname())
-                                                        .setUri(user.getProfilePicture());
+                                    item.setNickname(user.getNickname())
+                                            .setUri(user.getProfilePicture());
+                                    replyAdapter.addReply(item);
+                                    replyAdapter.notifyDataSetChanged();
+                                }
 
-                                                replyAdapter.notifyDataSetChanged();
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError error) {
-
-                                        }
-                                    });
-                        }
-                        replyItemList.add(reply);
-                    }
-                    replyAdapter.setReplies(replyItemList);
-                    replyAdapter.notifyDataSetChanged();
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                }
+                            });
                 }
             }
 
@@ -319,5 +345,4 @@ public class ForumFragment extends Fragment implements QuestionAdapter.OnItemLis
         });
     }
 }
-
 

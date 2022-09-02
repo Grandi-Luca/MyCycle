@@ -22,6 +22,7 @@ import com.google.android.material.textview.MaterialTextView;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -62,37 +63,41 @@ public class DashboardFragment extends Fragment {
             }
         });
 
-        var next = vModel.getNextMenstruationInfo(currentUser);
-
-        if(next == null) {
-            if(currentUser != null) {
-                vModel.getPredictedMenstruation(currentUser, LocalDate.now().plusMonths(1));
-                next = vModel.getNextMenstruationInfo(currentUser);
+        if(currentUser != null) {
+            var last = vModel.getLastMenstruationSaved();
+            if(last == null) {
+                last = new Menstruation().setStartDay(LocalDate
+                        .parse(currentUser.getFirstDay(),
+                                DateTimeFormatter.ofPattern("d/M/yyyy")).toString());
             }
+
+            var difference = (LocalDate.now()
+                    .until(LocalDate.parse(last.getStartDay()), ChronoUnit.DAYS));
+
+            var next = vModel.getNextMenstruationInfo(currentUser);
+            TextView subTitle = view.findViewById(R.id.subTitlePrimaryCard);
+
+            if (next != null) {
+                String primaryCardSubTitle = LocalDate.parse(next.getStartDay()).getDayOfMonth() +
+                        " " + LocalDate.parse(next.getStartDay()).getMonth().toString() + " - Prossime mestruazioni";
+                subTitle.setText(primaryCardSubTitle);
+            }
+
+            MaterialTextView title = view.findViewById(R.id.titlePrimaryCard);
+            String primaryCardTitle;
+            if(Math.abs(difference) > currentUser.getDurationMenstruation()) {
+                difference = LocalDate.now()
+                        .until(LocalDate
+                                .parse(next.getStartDay()), ChronoUnit.DAYS);
+                primaryCardTitle = (Math.abs(difference) + 1) + " gg rimasti";
+            } else {
+                primaryCardTitle = (Math.abs(difference) + 1) + "° giorno";
+            }
+            title.setText(primaryCardTitle);
         }
 
-        var last = vModel.getLastMenstruationSaved(vModel.getUserID());
-        if(last == null && currentUser != null) {
-            last = new Menstruation().setStartDay(currentUser.getFirstDay());
-        }
-
-        var difference = Math.abs(LocalDate.now()
-                .until(LocalDate.parse(last.getStartDay()), ChronoUnit.DAYS));
-
-        MaterialTextView title = view.findViewById(R.id.titlePrimaryCard);
-        String primaryCardTitle = (difference + 1) + "° giorno";
-        title.setText(primaryCardTitle);
-
-        TextView subTitle = view.findViewById(R.id.subTitlePrimaryCard);
-        if(next != null) {
-            String primaryCardSubTitle = LocalDate.parse(next.getStartDay()).getDayOfMonth() +
-                    " " + LocalDate.parse(next.getStartDay()).getMonth().toString() + " - Prossime mestruazioni";
-            subTitle.setText(primaryCardSubTitle);
-        }
-
-        if(activity != null) {
-            NoteRepository noteRepository = new NoteRepository(activity.getApplication());
-            var notes =noteRepository.getImportantNote()
+        if(activity != null && currentUser != null) {
+            var notes = vModel.getImportantNote()
                     .stream()
                     .filter(n -> LocalDate.parse(n.getDate()).isAfter(LocalDate.now()))
                     .collect(Collectors.toList());

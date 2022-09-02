@@ -19,6 +19,9 @@ public class Note {
     @ColumnInfo (name = "importance", defaultValue = "0")
     public int importance;
 
+    @ColumnInfo (name = "userID")
+    public String userID;
+
     public Note() {}
 
     public long getId() {
@@ -54,6 +57,15 @@ public class Note {
 
     public Note setImportance(int importance) {
         this.importance = importance;
+        return this;
+    }
+
+    public String getUserID() {
+        return userID;
+    }
+
+    public Note setUserID(String userID) {
+        this.userID = userID;
         return this;
     }
 }

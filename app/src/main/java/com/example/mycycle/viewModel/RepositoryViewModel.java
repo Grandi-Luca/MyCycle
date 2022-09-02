@@ -18,7 +18,10 @@ import com.example.mycycle.repo.MenstruationRepository;
 import com.example.mycycle.repo.NoteRepository;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -60,10 +63,30 @@ public class RepositoryViewModel extends AndroidViewModel {
 
     public List<Menstruation> getPredictedMenstruation(User user, LocalDate date) {
 
-        var nextDate = CalendarUtils.lastMenstruation.plusDays(user.getDurationPeriod());
+        if(CalendarUtils.lastMenstruation == null) {
+            var menstruation = getLastMenstruationSaved();
+            if(menstruation == null) {
+                CalendarUtils.lastMenstruation = LocalDate
+                        .parse(user.getFirstDay(), DateTimeFormatter.ofPattern("d/M/yyyy"));
+            } else {
+                CalendarUtils.lastMenstruation =
+                        LocalDate.parse(menstruation.getStartDay());
+            }
+        }
+        var nextDate = CalendarUtils.lastMenstruation;
+        if(!LocalDate.now().isBefore(CalendarUtils.lastMenstruation)) {
+            nextDate = CalendarUtils.lastMenstruation.plusDays(user.getDurationPeriod());
+        }
 
-        while (nextDate.getMonthValue() <= date.getMonthValue() &&
-                nextDate.getYear() == date.getYear() && nextDate.isAfter(LocalDate.now())) {
+        while (((nextDate.minusMonths(1).getMonthValue() == date.getMonthValue()
+                && nextDate.minusMonths(1).getYear() == date.getYear()) ||
+                // previous month
+                (nextDate.plusMonths(1).getMonthValue() == date.getMonthValue()
+                        && nextDate.plusMonths(1).getYear() == date.getYear()) ||
+                // actual month
+                (nextDate.getMonthValue() == date.getMonthValue()
+                        && nextDate.getYear() == date.getYear()))
+                && !nextDate.isBefore(LocalDate.now())) {
 
             var m = new Menstruation()
                     .setStartDay(nextDate.toString())
@@ -83,14 +106,21 @@ public class RepositoryViewModel extends AndroidViewModel {
     }
 
     public Menstruation getNextMenstruationInfo(User user) {
-        for (var menstruation : mPredict) {
-            if (LocalDate.parse(getLastMenstruationSaved(user.getUserID())
-                            .getStartDay()).plusDays(user.getDurationPeriod())
-                    .isEqual(LocalDate.parse(menstruation.getStartDay()))) {
-                return menstruation;
+        var m = getLastMenstruationSaved();
+        if(m != null) {
+            var last = LocalDate.parse(m.getStartDay());
+            for (var menstruation : mPredict) {
+
+                if (last.plusDays(user.getDurationPeriod())
+                        .isEqual(LocalDate.parse(menstruation.getStartDay()))) {
+                    return menstruation;
+                }
             }
         }
-        return null;
+        return new Menstruation()
+                .setStartDay(LocalDate
+                        .parse(user.getFirstDay(), DateTimeFormatter.ofPattern("d/M/yyyy"))
+                        .toString());
     }
 
     public int getPredictionSetSize() {
@@ -101,11 +131,19 @@ public class RepositoryViewModel extends AndroidViewModel {
         return uDAO.getCurrentUid();
     }
 
-    public Menstruation getLastMenstruationSaved(String userID) {
-        return menstruationRepository.getLastMenstruation(userID);
+    public Menstruation getLastMenstruationSaved() {
+        return menstruationRepository.getLastMenstruation(uDAO.getCurrentUid());
     }
 
     public List<Note> getNotes() {
-        return noteRepository.getNotes();
+        return noteRepository.getNotes(uDAO.getCurrentUid());
+    }
+
+    public List<Note> getImportantNote() {
+        return noteRepository.getImportantNote(uDAO.getCurrentUid());
+    }
+
+    public void insertNote(Note note) {
+        noteRepository.insertNote(note);
     }
 }

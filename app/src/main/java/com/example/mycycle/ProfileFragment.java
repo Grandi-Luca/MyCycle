@@ -452,7 +452,6 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
                 } else {
                     updateMenstruationNotification();
                 }
-
             }
         });
     }
@@ -510,33 +509,33 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
                                             if (user != null) {
                                                 item.setNickname(user.getNickname())
                                                         .setUri(user.getProfilePicture());
-
-                                                questionAdapter.notifyDataSetChanged();
+                                                if(!query.trim().isEmpty()) {
+                                                    if((item.getQuestionTitle().contains(query)
+                                                            || item.getQuestionDescription()
+                                                            .contains(query))
+                                                            && item.getUserID()
+                                                            .equals(daoUser.getCurrentUid())) {
+                                                        questionAdapter.addQuestion(item);
+                                                        questionAdapter.notifyDataSetChanged();
+                                                    }
+                                                } else {
+                                                    if(item.getUserID()
+                                                            .equals(daoUser.getCurrentUid())) {
+                                                        questionAdapter.addQuestion(item);
+                                                        questionAdapter.notifyDataSetChanged();
+                                                    }
+                                                }
                                             }
                                         }
 
                                         @Override
                                         public void onCancelled(@NonNull DatabaseError error) {
-
+                                            swipeRefreshLayout.setRefreshing(false);
                                         }
                                     });
-
                         }
-                        questionItemList.add(item);
+                        swipeRefreshLayout.setRefreshing(false);
                     }
-                    if(!query.trim().isEmpty()) {
-                        questionAdapter.setQuestions(questionItemList
-                                .stream()
-                                .filter(e ->
-                                        e.getQuestionTitle().contains(query)
-                                                || e.getQuestionDescription().contains(query))
-                                .collect(Collectors.toList()));
-
-                    } else {
-                        questionAdapter.setQuestions(questionItemList);
-                    }
-                    questionAdapter.notifyDataSetChanged();
-                    swipeRefreshLayout.setRefreshing(false);
                 }
             }
 
@@ -545,7 +544,6 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
-
         swipeRefreshLayout.setRefreshing(false);
     }
 
@@ -568,7 +566,7 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
                                             if (user != null) {
                                                 reply.setNickname(user.getNickname())
                                                         .setUri(user.getProfilePicture());
-
+                                                replyAdapter.addReply(reply);
                                                 replyAdapter.notifyDataSetChanged();
                                             }
                                         }
@@ -579,10 +577,7 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
                                         }
                                     });
                         }
-                        replyItemList.add(reply);
                     }
-                    replyAdapter.setReplies(replyItemList);
-                    replyAdapter.notifyDataSetChanged();
                 }
             }
 
@@ -606,7 +601,7 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
             Calendar calendar = Calendar.getInstance();
             var date = LocalDate
                     .parse(viewModel
-                            .getLastMenstruationSaved(daoUser.getCurrentUid())
+                            .getLastMenstruationSaved()
                             .getStartDay());
             calendar.set(Calendar.YEAR, date.getYear());
             calendar.set(Calendar.MONTH, date.getMonthValue() - 1);

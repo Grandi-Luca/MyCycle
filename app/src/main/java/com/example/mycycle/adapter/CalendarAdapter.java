@@ -67,22 +67,22 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.Calend
                 }
             }
 
-            for (var day : menstruationList) {
-                LocalDate start = LocalDate.parse(day.getStartDay());
-                LocalDate finish = LocalDate.parse(day.getLastDay());
-
-                if(!(date.isBefore(start) || date.isAfter(finish))) {
-                    holder.background.setBackgroundResource(R.drawable.cell_menstruation);
-                    holder.getDayOfMonth().setTextColor(Color.WHITE);
-                }
-            }
-
             for (var day : predictedList) {
                 LocalDate start = LocalDate.parse(day.getStartDay());
                 LocalDate finish = LocalDate.parse(day.getLastDay());
 
                 if(!(date.isBefore(start) || date.isAfter(finish))) {
                     holder.background.setBackgroundResource(R.drawable.cell_predicted);
+                    holder.getDayOfMonth().setTextColor(Color.WHITE);
+                }
+            }
+
+            for (var day : menstruationList) {
+                LocalDate start = LocalDate.parse(day.getStartDay());
+                LocalDate finish = LocalDate.parse(day.getLastDay());
+
+                if(!(date.isBefore(start) || date.isAfter(finish))) {
+                    holder.background.setBackgroundResource(R.drawable.cell_menstruation);
                     holder.getDayOfMonth().setTextColor(Color.WHITE);
                 }
             }

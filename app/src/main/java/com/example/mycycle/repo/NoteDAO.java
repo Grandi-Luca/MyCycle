@@ -13,12 +13,12 @@ public interface NoteDAO {
     @Insert
     void insertNote(Note note);
 
-    @Query("SELECT * FROM Note")
-    List<Note> getNotes();
+    @Query("SELECT * FROM Note WHERE userID=:userID")
+    List<Note> getNotes(String userID);
 
-    @Query("DELETE FROM Note")
-    void deleteAll();
+    @Query("DELETE FROM Note WHERE userID=:userID")
+    void deleteAll(String userID);
 
-    @Query("SELECT * FROM Note WHERE importance > 0")
-    List<Note> getImportantNote();
+    @Query("SELECT * FROM Note WHERE userID=:userID AND importance > 0")
+    List<Note> getImportantNote(String userID);
 }
