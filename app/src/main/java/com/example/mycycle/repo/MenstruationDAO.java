@@ -1,6 +1,7 @@
 package com.example.mycycle.repo;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
@@ -12,8 +13,6 @@ import java.util.List;
 @Dao
 public interface MenstruationDAO {
 
-//    @Query("INSERT OR IGNORE INTO Menstruation (userID, startDay, lastDay)" +
-//            " VALUES (:userID, :startDay, :lastDay)")
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     void insert(Menstruation menstruation);
 
@@ -22,4 +21,7 @@ public interface MenstruationDAO {
 
     @Query("SELECT * FROM Menstruation WHERE userID=:userID")
     List<Menstruation> getMonthlyMenstruation(String userID);
+
+    @Query("DELETE FROM Menstruation WHERE userID=:userID")
+    void deleteAll(String userID);
 }

@@ -30,4 +30,8 @@ public class MenstruationRepository {
         return menstruationDAO.getMonthlyMenstruation(userID);
     }
 
+    public void deleteAll(String userID) {
+        menstruationDAO.deleteAll(userID);
+    }
+
 }

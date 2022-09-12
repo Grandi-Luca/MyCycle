@@ -98,7 +98,6 @@ public class RegisterUser extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         initActivity();
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -142,7 +141,7 @@ public class RegisterUser extends AppCompatActivity {
         findViewById(R.id.register).setOnClickListener(view -> registerUser());
 
         pill.setOnClickListener(v->{
-            findViewById(R.id.setAlarmContainer)
+            findViewById(R.id.textClock)
                     .setVisibility(pill.isChecked()
                             ? View.VISIBLE
                             : View.GONE);
@@ -237,6 +236,7 @@ public class RegisterUser extends AppCompatActivity {
                                 .setFirstDay(firstDay)
                                 .setDurationPeriod(Integer.parseInt(durationPeriod))
                                 .setDurationMenstruation(Integer.parseInt(durationMenstruation))
+                                .setEmail(email)
                                 .setProfilePicture(" ");
 
                         var uReference =  FirebaseDatabase.getInstance("https://auth-89f75-default-rtdb.europe-west1.firebasedatabase.app")

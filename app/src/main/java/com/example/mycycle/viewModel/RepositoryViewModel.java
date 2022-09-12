@@ -42,8 +42,12 @@ public class RepositoryViewModel extends AndroidViewModel {
         uDAO = new FirebaseDAOUser();
     }
 
-    public void insertNewEvent(Menstruation menstruation) {
+    public void insertNewMenstruation(Menstruation menstruation) {
         menstruationRepository.insert(menstruation);
+    }
+
+    public void deleteAllMenstruationEvent() {
+        menstruationRepository.deleteAll(uDAO.getCurrentUid());
     }
 
     public List<Menstruation> getMonthlyMenstruationEvent(String userID, LocalDate date) {

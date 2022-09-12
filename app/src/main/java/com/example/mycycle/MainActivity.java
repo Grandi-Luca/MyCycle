@@ -7,9 +7,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.example.mycycle.databinding.ActivityMainBinding;
 import com.example.mycycle.model.Menstruation;
@@ -126,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                         .plusDays(currentUser.getDurationMenstruation() - 1)
                         .toString();
 
-                mViewModel.insertNewEvent(new Menstruation()
+                mViewModel.insertNewMenstruation(new Menstruation()
                         .setUserID(currentUser.getUserID())
                         .setStartDay(startDay)
                         .setLastDay(finishDay));

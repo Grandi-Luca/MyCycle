@@ -7,6 +7,7 @@ public class User {
     private String profilePicture;
     private String userID;
     private int durationPeriod, durationMenstruation;
+    private String email;
 
     public User() {
     }
@@ -62,6 +63,15 @@ public class User {
 
     public User setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+        return this;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public User setEmail(String email) {
+        this.email = email;
         return this;
     }
 

@@ -20,222 +20,344 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="50dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingBottom="40dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <EditText
-                android:id="@+id/nickname"
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/linearLayout3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="44dp"
-                android:hint="Nickname"
-                android:minHeight="48dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.526"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/loadImageContainer" />
-
-            <EditText
-                android:id="@+id/email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:hint="Email"
-                android:inputType="textEmailAddress"
-                android:minHeight="48dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.516"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/nickname" />
-
-            <EditText
-                android:id="@+id/password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:hint="Password"
-                android:inputType="textPassword"
-                android:minHeight="48dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.516"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/email" />
-
-            <EditText
-                android:id="@+id/confirm_password"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:hint="Conferma password"
-                android:inputType="textPassword"
-                android:minHeight="48dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.516"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/password" />
-
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="80dp"
-                android:text="Rispondi ai seguenti quesiti per completare la registrazione"
-                android:textSize="24dp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.473"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/confirm_password" />
-
-            <EditText
-                android:id="@+id/editText1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="28dp"
-                android:ems="10"
-                android:hint="Primo giorno del tuo ultimo ciclo metruale"
-                android:minHeight="48dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.009"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-            <EditText
-                android:id="@+id/durationPeriod"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:hint="Durata ciclo mestruale"
-                android:inputType="number"
-                android:minHeight="48dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.526"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/editText1" />
-
-            <EditText
-                android:id="@+id/menstruationDuration"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:hint="Durata mestruazioni"
-                android:inputType="number"
-                android:minHeight="48dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.526"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/durationPeriod" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/reminder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                app:dividerDrawable="@drawable/divider_20dp"
+                app:flexDirection="column"
+                android:layout_marginTop="60dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                android:layout_marginTop="32dp"
-                app:layout_constraintTop_toBottomOf="@id/menstruationDuration">
-
-                <CheckBox
-                    android:id="@+id/pill"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="start"
-                    android:gravity="center|end"
-                    android:text="Pillola"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/setAlarmContainer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="invisible"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-                    <TextView
-                        android:id="@+id/textClock"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <Button
-                android:id="@+id/register"
-                android:layout_width="178dp"
-                android:layout_height="50dp"
-                android:layout_marginTop="30dp"
-                android:text="Register"
-                android:backgroundTint="@color/primary_dark"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/reminder" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/loadImageContainer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="80dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ImageView
-                    android:id="@+id/profileImage"
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
-                    android:layout_weight="1"
-                    android:background="@drawable/default_profile_image"
-                    android:scaleType="fitXY"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.005"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:showDivider="middle">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="30dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/profileImage"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/buttonLoadPicture"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="2dp"
+                        android:text="Info account"
+                        android:textColor="@color/black"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.card.MaterialCardView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="10dp"
-                        android:backgroundTint="@color/primary_dark"
-                        android:text="Load Picture" />
+                        app:cardCornerRadius="5dp">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/buttonTakePicture"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/primary_dark"
-                        android:background="?android:selectableItemBackground"
-                        android:text="take picture" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/white"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="10dp">
+
+                            <com.google.android.flexbox.FlexboxLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@color/white"
+                                android:padding="10dp"
+                                app:alignItems="center"
+                                app:flexDirection="column"
+                                app:flexWrap="wrap"
+                                app:justifyContent="center">
+
+                                <ImageView
+                                    android:layout_marginTop="10dp"
+                                    android:id="@+id/profileImage"
+                                    android:src="@drawable/default_profile_image"
+                                    android:layout_width="125dp"
+                                    android:layout_height="125dp"
+                                    android:scaleType="fitXY"
+                                    />
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="20dp"
+                                    android:orientation="horizontal">
+
+                                    <com.google.android.material.button.MaterialButton
+                                        android:id="@+id/buttonLoadPicture"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginEnd="20dp"
+                                        android:layout_weight="1"
+                                        android:backgroundTint="@color/primary_dark"
+                                        android:text="Load Picture" />
+
+                                    <com.google.android.material.button.MaterialButton
+                                        android:id="@+id/buttonTakePicture"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="20dp"
+                                        android:layout_weight="1"
+                                        android:background="?android:selectableItemBackground"
+                                        android:text="take picture"
+                                        android:textColor="@color/primary_dark" />
+
+                                </LinearLayout>
+
+
+                            </com.google.android.flexbox.FlexboxLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="2dp"
+                                android:background="?android:attr/listDivider"
+                                android:backgroundTint="@color/gray"
+                                android:foreground="@color/gray"
+                                />
+
+                            <com.google.android.flexbox.FlexboxLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="10dp"
+                                app:alignItems="baseline"
+                                app:justifyContent="space_between">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Nickname"
+                                    android:textSize="18sp" />
+
+                                <EditText
+                                    android:id="@+id/nickname"
+                                    android:layout_width="150dp"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="text"
+                                    android:textSize="18sp" />
+
+                            </com.google.android.flexbox.FlexboxLayout>
+
+                            <com.google.android.flexbox.FlexboxLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="10dp"
+                                app:alignItems="baseline"
+                                app:justifyContent="space_between">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Email"
+                                    android:textSize="18sp" />
+
+                                <EditText
+                                    android:id="@+id/email"
+                                    android:layout_width="150dp"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="textEmailAddress"
+                                    android:textSize="18sp" />
+
+                            </com.google.android.flexbox.FlexboxLayout>
+
+                            <com.google.android.flexbox.FlexboxLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="10dp"
+                                app:alignItems="baseline"
+                                app:justifyContent="space_between">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Password"
+                                    android:textSize="18sp" />
+
+                                <EditText
+                                    android:id="@+id/password"
+                                    android:layout_width="150dp"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="textPassword"
+                                    android:textSize="18sp" />
+
+                            </com.google.android.flexbox.FlexboxLayout>
+
+                            <com.google.android.flexbox.FlexboxLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="10dp"
+                                app:alignItems="baseline"
+                                app:justifyContent="space_between">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Conferma password"
+                                    android:textSize="18sp" />
+
+                                <EditText
+                                    android:id="@+id/confirm_password"
+                                    android:layout_width="150dp"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="textPassword"
+                                    android:textSize="18sp" />
+
+                            </com.google.android.flexbox.FlexboxLayout>
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
 
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent">
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingVertical="2dp"
+                        android:text="Info personali"
+                        android:textColor="@color/black"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="5dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/white"
+                            android:orientation="vertical"
+                            android:paddingHorizontal="10dp">
+
+                            <com.google.android.flexbox.FlexboxLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:paddingVertical="10dp"
+                                app:alignItems="baseline"
+                                app:justifyContent="space_between">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="10dp"
+                                    android:text="Durata Ciclo"
+                                    android:textSize="18sp" />
+
+                                <EditText
+                                    android:id="@+id/durationPeriod"
+                                    android:layout_width="150dp"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="number"
+                                    android:textSize="18sp" />
+
+                            </com.google.android.flexbox.FlexboxLayout>
+
+                            <com.google.android.flexbox.FlexboxLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="10dp"
+                                app:alignItems="baseline"
+                                app:justifyContent="space_between">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Durata Mestruazioni"
+                                    android:textSize="18sp" />
+
+                                <EditText
+                                    android:id="@+id/menstruationDuration"
+                                    android:layout_width="150dp"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="number"
+                                    android:textSize="18sp" />
+
+                            </com.google.android.flexbox.FlexboxLayout>
+
+                            <com.google.android.flexbox.FlexboxLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="10dp"
+                                app:alignItems="baseline"
+                                app:justifyContent="space_between">
+
+                                <TextView
+                                    android:layout_width="200dp"
+                                    android:layout_height="wrap_content"
+                                    android:text="Primo giorno del tuo ultimo ciclo metruale"
+                                    android:textSize="18sp" />
+
+                                <EditText
+                                    android:id="@+id/editText1"
+                                    android:layout_width="150dp"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="text"
+                                    android:textSize="18sp" />
+
+                            </com.google.android.flexbox.FlexboxLayout>
+
+                            <com.google.android.flexbox.FlexboxLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:paddingVertical="10dp"
+                                app:alignItems="baseline"
+                                app:justifyContent="space_between">
+
+                                <CheckBox
+                                    android:id="@+id/pill"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="start"
+                                    android:gravity="center|end"
+                                    android:text="Pillola" />
+
+                                <TextView
+                                    android:id="@+id/textClock"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:visibility="gone" />
+
+                            </com.google.android.flexbox.FlexboxLayout>
+
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+            </com.google.android.flexbox.FlexboxLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/register"
+                android:layout_width="178dp"
+                android:layout_height="50dp"
+                android:backgroundTint="@color/primary"
+                android:text="Register"
+                android:layout_marginTop="30dp"
+                app:cornerRadius="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout3" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

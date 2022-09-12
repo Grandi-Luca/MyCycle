@@ -59,6 +59,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.UploadTask;
 
+import org.w3c.dom.Text;
+
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -77,7 +79,7 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
     SwitchMaterial medicineReminderSwitch;
     SwitchMaterial menstruationReminderSwitch;
 
-    private TextView nickname, menstruationDuration, periodDuration;
+    private TextView nickname, menstruationDuration, periodDuration, email;
     private EditText dialogNickname, dialogDurationMenstruation, dialogDurationPeriod;
     private ImageView profilePicture, dialogProfilePicture;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -270,6 +272,10 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
                                 .into(profilePicture);
                     }
 
+                    if(!currentUser.getEmail().isEmpty()) {
+                        email.setText(currentUser.getEmail());
+                    }
+
                 }
             }
 
@@ -420,6 +426,10 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
                         .getText().toString()))
                 .setFirstDay(currentUser.getFirstDay())
                 .setProfilePicture(currentUser.getProfilePicture());
+
+        if(!currentUser.getEmail().isEmpty()) {
+            user.setEmail(currentUser.getEmail());
+        }
 
         daoUser.updateUserInfo(user).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
