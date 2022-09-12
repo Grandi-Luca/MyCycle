@@ -1,35 +1,26 @@
 package com.example.mycycle;
 
 import static com.example.mycycle.MainActivity.currentUser;
-import static com.example.mycycle.MainActivity.mViewModel;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+
 import com.example.mycycle.model.Menstruation;
-import com.example.mycycle.model.Note;
-import com.example.mycycle.repo.NoteRepository;
-import com.example.mycycle.viewModel.RepositoryViewModel;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textview.MaterialTextView;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("SpellCheckingInspection")
 public class DashboardFragment extends Fragment {
 
     public DashboardFragment() {
@@ -41,6 +32,7 @@ public class DashboardFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -74,26 +66,31 @@ public class DashboardFragment extends Fragment {
             var difference = (LocalDate.now()
                     .until(LocalDate.parse(last.getStartDay()), ChronoUnit.DAYS));
 
-            var next = vModel.getNextMenstruationInfo(currentUser);
+
+            var nextMenstruationInfo = vModel.getNextMenstruationInfo(currentUser);
             TextView subTitle = view.findViewById(R.id.subTitlePrimaryCard);
 
-            if (next != null) {
-                String primaryCardSubTitle = LocalDate.parse(next.getStartDay()).getDayOfMonth() +
-                        " " + LocalDate.parse(next.getStartDay()).getMonth().toString() + " - Prossime mestruazioni";
+            if (nextMenstruationInfo != null) {
+                String primaryCardSubTitle = LocalDate.parse(nextMenstruationInfo.getStartDay()).getDayOfMonth() +
+                        " " + LocalDate.parse(nextMenstruationInfo.getStartDay()).getMonth().toString() + " - Prossime mestruazioni";
                 subTitle.setText(primaryCardSubTitle);
-            }
 
-            MaterialTextView title = view.findViewById(R.id.titlePrimaryCard);
-            String primaryCardTitle;
-            if(Math.abs(difference) > currentUser.getDurationMenstruation()) {
-                difference = LocalDate.now()
-                        .until(LocalDate
-                                .parse(next.getStartDay()), ChronoUnit.DAYS);
-                primaryCardTitle = (Math.abs(difference) + 1) + " gg rimasti";
-            } else {
-                primaryCardTitle = (Math.abs(difference) + 1) + "° giorno";
+                MaterialTextView title = view.findViewById(R.id.titlePrimaryCard);
+                String primaryCardTitle;
+
+                if (Math.abs(difference) > currentUser.getDurationMenstruation()
+                        || last.getStartDay().equals(nextMenstruationInfo.getStartDay())) {
+                    difference = LocalDate.now()
+                            .until(LocalDate
+                                    .parse(nextMenstruationInfo.getStartDay()), ChronoUnit.DAYS);
+                    primaryCardTitle = Math.abs(difference) + (Math.abs(difference) == 1 ?
+                            " gg rimasto" :
+                            (Math.abs(difference) == 0 ? "1° giorno" : "gg rimasti"));
+                } else {
+                    primaryCardTitle = (Math.abs(difference) + 1) + "° giorno";
+                }
+                title.setText(primaryCardTitle);
             }
-            title.setText(primaryCardTitle);
         }
 
         if(activity != null && currentUser != null) {

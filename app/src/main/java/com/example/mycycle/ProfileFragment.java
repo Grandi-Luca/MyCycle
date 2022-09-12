@@ -59,15 +59,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.UploadTask;
 
-import org.w3c.dom.Text;
-
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @SuppressWarnings({"SameParameterValue", "StatementWithEmptyBody"})
 public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemListener {
@@ -174,6 +171,7 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
         nickname = view.findViewById(R.id.nickname);
         menstruationDuration = view.findViewById(R.id.menstruationDuration);
         periodDuration = view.findViewById(R.id.durationPeriod);
+        email = view.findViewById(R.id.email);
 
         if(!isUserLogin()) {
             Intent intent = new Intent(getActivity(), LoginUser.class);
@@ -272,7 +270,7 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
                                 .into(profilePicture);
                     }
 
-                    if(!currentUser.getEmail().isEmpty()) {
+                    if(currentUser.getEmail() != null && !currentUser.getEmail().isEmpty()) {
                         email.setText(currentUser.getEmail());
                     }
 
@@ -352,9 +350,7 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
             dialog.dismiss();
         });
 
-        dialog.findViewById(R.id.closeButton).setOnClickListener(view -> {
-            dialog.dismiss();
-        });
+        dialog.findViewById(R.id.closeButton).setOnClickListener(view -> dialog.dismiss());
     }
 
     private void showTimePickerDialog(){
@@ -427,7 +423,7 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
                 .setFirstDay(currentUser.getFirstDay())
                 .setProfilePicture(currentUser.getProfilePicture());
 
-        if(!currentUser.getEmail().isEmpty()) {
+        if(currentUser.getEmail() != null && !currentUser.getEmail().isEmpty()) {
             user.setEmail(currentUser.getEmail());
         }
 
@@ -490,9 +486,8 @@ public class ProfileFragment extends Fragment implements QuestionAdapter.OnItemL
         questionRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         SwipeRefreshLayout swipeRefreshLayout = dialog.findViewById(R.id.swipeLayout);
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            swipeRefreshLayout.setRefreshing(false);
-        });
+        swipeRefreshLayout.setOnRefreshListener(() ->
+                swipeRefreshLayout.setRefreshing(false));
 
         loadReplies(item.getPostID());
 

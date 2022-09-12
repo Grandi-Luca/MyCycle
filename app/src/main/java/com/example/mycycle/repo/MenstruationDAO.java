@@ -13,13 +13,14 @@ import java.util.List;
 @Dao
 public interface MenstruationDAO {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(Menstruation menstruation);
 
-    @Query("SELECT * FROM Menstruation WHERE userID=:userID ORDER BY startDay DESC LIMIT 1")
+    @Query("SELECT * FROM Menstruation WHERE userID=:userID " +
+            "AND startDay <= date('now') ORDER BY startDay DESC LIMIT 1")
     Menstruation getLastMenstruation(String userID);
 
-    @Query("SELECT * FROM Menstruation WHERE userID=:userID")
+    @Query("SELECT * FROM Menstruation WHERE userID=:userID AND startDay <= date('now')")
     List<Menstruation> getMonthlyMenstruation(String userID);
 
     @Query("DELETE FROM Menstruation WHERE userID=:userID")
