@@ -1,13 +1,13 @@
 package com.example.mycycle;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -28,6 +28,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.example.mycycle.model.NotificationService;
 import com.example.mycycle.model.User;
@@ -38,20 +40,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
 
+@SuppressWarnings("StatementWithEmptyBody")
+@RequiresApi(api = Build.VERSION_CODES.N)
 public class RegisterUser extends AppCompatActivity {
 
     private DatePickerDialog picker;
@@ -89,7 +86,54 @@ public class RegisterUser extends AppCompatActivity {
                 }
             });
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    private final ActivityResultLauncher<String> requestCameraPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Permission is granted. Continue the action or workflow in your
+                    // app.
+                    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    cameraLauncher.launch(takePictureIntent);
+                } else {
+                    // Explain to the user that the feature is unavailable because the
+                    // features requires a permission that the user has denied. At the
+                    // same time, respect the user's decision. Don't link to system
+                    // settings in an effort to convince the user to change their
+                    // decision.
+                }
+            });
+
+    private final ActivityResultLauncher<String> requestStoragePermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Permission is granted. Continue the action or workflow in your
+                    // app.
+                    Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    galleryLauncher.launch(galleryIntent);
+                } else {
+                    // Explain to the user that the feature is unavailable because the
+                    // features requires a permission that the user has denied. At the
+                    // same time, respect the user's decision. Don't link to system
+                    // settings in an effort to convince the user to change their
+                    // decision.
+                }
+            });
+
+    private final ActivityResultLauncher<String> requestNotificationPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Permission is granted. Continue the action or workflow in your
+                    // app.
+                    setNotifications();
+                } else {
+                    // Explain to the user that the feature is unavailable because the
+                    // features requires a permission that the user has denied. At the
+                    // same time, respect the user's decision. Don't link to system
+                    // settings in an effort to convince the user to change their
+                    // decision.
+                }
+            });
+
+    @RequiresApi(api = Build.VERSION_CODES.S)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,7 +144,7 @@ public class RegisterUser extends AppCompatActivity {
         initActivity();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @RequiresApi(api = Build.VERSION_CODES.S)
     @SuppressLint({"DefaultLocale"})
     private void initActivity(){
 
@@ -128,24 +172,47 @@ public class RegisterUser extends AppCompatActivity {
 
         // load image from gallery
         findViewById(R.id.buttonLoadPicture).setOnClickListener(view -> {
-            Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            galleryLauncher.launch(galleryIntent);
+            if(ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                // permission storage granted
+                Intent galleryIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                galleryLauncher.launch(galleryIntent);
+
+            } else if(ActivityCompat.shouldShowRequestPermissionRationale(
+                    this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                // Additional rationale should be displayed
+                requestStoragePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+            } else {
+                // Permission has not been asked yet
+                requestStoragePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE);
+            }
         });
 
 
         findViewById(R.id.buttonTakePicture).setOnClickListener(view -> {
-            Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            cameraLauncher.launch(takePictureIntent);
+            if(ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                // permission camera granted
+                Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                cameraLauncher.launch(takePictureIntent);
+
+            } else if(ActivityCompat.shouldShowRequestPermissionRationale(
+                    this, Manifest.permission.CAMERA)) {
+                // Additional rationale should be displayed
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+            } else {
+                // Permission has not been asked yet
+                requestCameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+            }
         });
 
         findViewById(R.id.register).setOnClickListener(view -> registerUser());
 
-        pill.setOnClickListener(v->{
-            findViewById(R.id.textClock)
-                    .setVisibility(pill.isChecked()
-                            ? View.VISIBLE
-                            : View.GONE);
-        });
+        pill.setOnClickListener(view ->
+                findViewById(R.id.textClock)
+                        .setVisibility(pill.isChecked()
+                                ? View.VISIBLE
+                                : View.GONE));
 
         clock = new TextClock(this);
         textClock.setText(LocalTime.now().format(clock.is24HourModeEnabled() ?
@@ -175,7 +242,7 @@ public class RegisterUser extends AppCompatActivity {
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @RequiresApi(api = Build.VERSION_CODES.S)
     @SuppressLint("SimpleDateFormat")
     private void registerUser() {
         String nickname = this.editNickName.getText().toString();
@@ -263,40 +330,20 @@ public class RegisterUser extends AppCompatActivity {
                                     downloadUrl.addOnSuccessListener(uri -> {
                                         uReference.child("profilePicture").setValue(uri.toString());
 
-                                        var notificationService = new NotificationService(this);
-                                        Calendar calendar = Calendar.getInstance();
-                                        // add Alarm manager to create a daily remainder
-                                        if(pill.isChecked()) {
-                                            CharSequence time;
+                                        if(ContextCompat.checkSelfPermission(this,
+                                                Manifest.permission.SCHEDULE_EXACT_ALARM) == PackageManager.PERMISSION_GRANTED) {
+                                            // permission notification granted
+                                            setNotifications();
 
-                                            // get the time as a string using a specified format
-                                            if (!clock.is24HourModeEnabled()) {
-                                                time = CalendarUtils.formattedTime(textClock.getText().toString(),
-                                                        new SimpleDateFormat("hh:mm aa"),
-                                                        new SimpleDateFormat("HH:mm"));
-                                            } else {
-                                                time = textClock.getText().toString();
-                                            }
-                                            var date = LocalTime.parse(time);
-
-                                            calendar.set(Calendar.HOUR_OF_DAY, date.getHour());
-                                            calendar.set(Calendar.MINUTE, date.getMinute());
-                                            calendar.set(Calendar.SECOND, 0);
-
-                                            notificationService.setMedicineDailyNotification(calendar);
+                                        } else if(ActivityCompat.shouldShowRequestPermissionRationale(
+                                                this, Manifest.permission.SCHEDULE_EXACT_ALARM)) {
+                                            // Additional rationale should be displayed
+                                            requestNotificationPermissionLauncher.launch(Manifest.permission.SCHEDULE_EXACT_ALARM);
+                                        } else {
+                                            // Permission has not been asked yet
+                                            requestNotificationPermissionLauncher.launch(Manifest.permission.SCHEDULE_EXACT_ALARM);
                                         }
-
-                                        var curTime = Calendar.getInstance();
-                                        calendar = Calendar.getInstance();
-                                        var date = LocalDate.parse(eLastTime.getText().toString(),
-                                                DateTimeFormatter.ofPattern("d/M/yyyy"));
-                                        calendar.set(Calendar.YEAR, date.getYear());
-                                        calendar.set(Calendar.MONTH, date.getMonthValue() - 1);
-                                        calendar.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
-                                        calendar.set(Calendar.HOUR_OF_DAY, 9);
-                                        calendar.add(Calendar.MINUTE, 0);
-                                        calendar.set(Calendar.SECOND, 0);
-                                        notificationService.setMenstruationNotification(calendar);
+                                        setNotifications();
 
                                     });
                                 });
@@ -309,6 +356,43 @@ public class RegisterUser extends AppCompatActivity {
                         Toast.makeText(RegisterUser.this, "Failed to register! Try again", Toast.LENGTH_LONG).show();
                     }
                 });
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private void setNotifications() {
+        var notificationService = new NotificationService(this);
+        Calendar calendar = Calendar.getInstance();
+        // add Alarm manager to create a daily remainder
+        if(pill.isChecked()) {
+            CharSequence time;
+
+            // get the time as a string using a specified format
+            if (!clock.is24HourModeEnabled()) {
+                time = CalendarUtils.formattedTime(textClock.getText().toString(),
+                        new SimpleDateFormat("h:m aa"),
+                        new SimpleDateFormat("H:m"));
+            } else {
+                time = textClock.getText().toString();
+            }
+            var date = LocalTime.parse(time);
+
+            calendar.set(Calendar.HOUR_OF_DAY, date.getHour());
+            calendar.set(Calendar.MINUTE, date.getMinute());
+            calendar.set(Calendar.SECOND, 0);
+
+            notificationService.setMedicineDailyNotification(calendar);
+        }
+
+        calendar = Calendar.getInstance();
+        var date = LocalDate.parse(eLastTime.getText().toString(),
+                DateTimeFormatter.ofPattern("d/M/yyyy"));
+        calendar.set(Calendar.YEAR, date.getYear());
+        calendar.set(Calendar.MONTH, date.getMonthValue() - 1);
+        calendar.set(Calendar.DAY_OF_MONTH, date.getDayOfMonth());
+        calendar.set(Calendar.HOUR_OF_DAY, 9);
+        calendar.add(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        notificationService.setMenstruationNotification(calendar);
     }
 
     private boolean isEmpty(@NonNull String str, EditText editText, String nameField){
